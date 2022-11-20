@@ -28,7 +28,7 @@ background = Image.open('background_normal.png')
 # A (alpha) parameter is 0.0 for fully transparent, 1.0 for fully opaque
 
 
-"""------------ FUNCTION DEFINITIONS ------------"""
+"""------------ BASIC FUNCTION DEFINITIONS ------------"""
 
 # Dictionary of items of interest, obtained from testing
 visual_dict = {"Aqua_bright":(37, 221, 194), 
@@ -176,7 +176,7 @@ def zombie_lookout(image_array, x_size, y_size, threshold):
         - Filter out pixels with sky, mountain or earth
         - Of remaining pixels cluster pixels to determine if a zombie is near
         - From average of cluster, determine relative horizontal position
-    Return None if no zombie, else return type and angle
+    Return None if no zombie, else return (type, angle(degree) ) tuple 
     """
     filtered_array = []   # new list of RGB pixels for non-background objects
     filtered_pos = []     # positions to save x,y information
@@ -269,6 +269,37 @@ def zombie_lookout(image_array, x_size, y_size, threshold):
     return zombie_type, angle
 
 
+"""------------ Motor schema vector addition ------------"""
+
+def compute_escape(front_lookout, right_lookout, back_lookout, left_lookout):
+    """
+    Function to calculate escape TURN angle based on four camera lookouts
+    Each input lookout is (zombie type, angle) tuple so we can tailor according
+    to color if desired. 
+    Output escape angle (degree, radially inward!), for subsequent motor action
+    i.e. zero degrees front lookout: facing head-on, so go BACK
+         zero degrees right lookout: coming from the right, go LEFT
+    """
+    
+    # for now treat all zombies uniformly
+    escape_angle = 0
+    if front_lookout != None:
+        escape_angle += front_lookout[1] + 180
+    if right_lookout != None:
+        escape_angle += right_lookout[1] + 270
+    if back_lookout != None:
+        escape_angle += back_lookout[1]   # see math
+    if left_lookout != None:
+        escape_angle += left_lookout[1] + 90
+    
+    while escape_angle >= 360:
+        escape_angle -= 360
+    
+    if escape_angle > 180:
+        return 360-escape_angle    # turn left/anticlockwise
+    else:
+        return escape_angle        # turn clockwise
+
 
 # Get background statistics
 compute_background_features(background_array)
@@ -277,25 +308,32 @@ compute_background_features(background_array)
 
 plt.imshow(aqua_zombie)  # show in Spyder console
 plt.show()
-print(zombie_lookout(aqua_zombie_array, image_x_size, image_y_size, 50))
+a_lookout = zombie_lookout(aqua_zombie_array, image_x_size, image_y_size, 50)
+print(a_lookout)
 
 
 plt.imshow(blue_zombie) 
 plt.show()
-print(zombie_lookout(blue_zombie_array, image_x_size, image_y_size, 50))
+b_lookout = zombie_lookout(blue_zombie_array, image_x_size, image_y_size, 50)
+print(b_lookout)
 
 plt.imshow(green_zombie) 
 plt.show()
-print(zombie_lookout(green_zombie_array, image_x_size, image_y_size, 50))
+g_lookout = zombie_lookout(green_zombie_array, image_x_size, image_y_size, 50)
+print(g_lookout)
 
 plt.imshow(purple_zombie) 
 plt.show()
-print(zombie_lookout(purple_zombie_array, image_x_size, image_y_size, 50))
+p_lookout = zombie_lookout(purple_zombie_array, image_x_size, image_y_size, 50)
+print(p_lookout)
 
 
 plt.imshow(background) 
 plt.show()
 print(zombie_lookout(background_array, image_x_size, image_y_size, 50))
+
+print(compute_escape(a_lookout, b_lookout, g_lookout, p_lookout))
+
 
 
 """
