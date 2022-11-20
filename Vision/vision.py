@@ -10,7 +10,7 @@ To identify and work out ZOMBIE, BERRY type
 from PIL import Image
 import matplotlib.pyplot as plt
 import os
-os.chdir('/Users/yujun/Desktop/CPSC472/Vision')  # set to local folder
+os.chdir('/Users/webots/Berries_vs_zombies/Vision')  # set to local folder
 import numpy as np
 
 aqua_zombie = Image.open('aqua_legs.png')
