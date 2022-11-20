@@ -276,9 +276,10 @@ def compute_escape(front_lookout, right_lookout, back_lookout, left_lookout):
     Function to calculate escape TURN angle based on four camera lookouts
     Each input lookout is (zombie type, angle) tuple so we can tailor according
     to color if desired. 
-    Output escape angle (degree, radially inward!), for subsequent motor action
+    Output escape angle (from -180 to 180 deg), for motor action
     i.e. zero degrees front lookout: facing head-on, so go BACK
          zero degrees right lookout: coming from the right, go LEFT
+         
     """
     
     # for now treat all zombies uniformly
