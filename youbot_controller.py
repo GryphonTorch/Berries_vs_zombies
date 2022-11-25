@@ -19,30 +19,37 @@ SPEED = 6.28 #Max speed, we can change this as needed
 def base_set_wheel_velocity(device, velocity):
     device.setPosition('inf')
     device.setVelocity(velocity)
+    return
 
 def base_set_wheel_speeds_helper(speeds):
     for i in range(4):
         base_set_wheel_velocity(wheels[i], speeds[i])
+    return
 
 def base_reset():
     speeds = [0.0, 0.0, 0.0, 0.0]
     base_set_wheel_speeds_helper(speeds)
+    return
 
 def base_forwards():
     speeds = [SPEED, SPEED, SPEED, SPEED]
     base_set_wheel_speeds_helper(speeds)
+    return
 
 def base_backwards():
     speeds = [-SPEED, -SPEED, -SPEED, -SPEED]
     base_set_wheel_speeds_helper(speeds)
+    return
 
 def base_turn_left():
     speeds = [SPEED, -SPEED, SPEED, -SPEED]
-    base_set_wheel_speeds_helper(speeds);
+    base_set_wheel_speeds_helper(speeds)
+    return
 
 def base_turn_right():
     speeds = [-SPEED, SPEED, -SPEED, SPEED]
-    base_set_wheel_speeds_helper(speeds);
+    base_set_wheel_speeds_helper(speeds)
+    return
 
 
 def rotate_degree(theta):
@@ -446,9 +453,10 @@ def main():
         # Feed escape_angle to motor
         rotate_degree(escape_angle)
 
-        j = 0
-        for j in range(100):
-            base_forwards()
+        if front_lookout != None or right_lookout != None or back_lookout != None or left_lookout != None):
+            j = 0
+            for j in range(100):
+                base_forwards()
             
         
         #possible pseudocode for moving forward, then doing a 90 degree left turn
