@@ -453,7 +453,7 @@ def main():
         # Feed escape_angle to motor
         rotate_degree(escape_angle)
 
-        if front_lookout != None or right_lookout != None or back_lookout != None or left_lookout != None):
+        if (front_lookout != None or right_lookout != None or back_lookout != None or left_lookout != None):
             j = 0
             for j in range(100):
                 base_forwards()
