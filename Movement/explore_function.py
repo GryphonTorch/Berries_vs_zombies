@@ -3,13 +3,13 @@ THE FOLLOWING FUNCTIONS ARE HELPER FUNCTIONS
 
 CONCERNS: Numbering of the wheels, need to verify this
 '''
+fr = robot.getDevice("wheel1")
+fl = robot.getDevice("wheel2")
+br = robot.getDevice("wheel3")
+bl = robot.getDevice("wheel4")
+    
 
-fl = robot.getDevice("wheel1") # front left wheel
-fr = robot.getDevice("wheel2") # front right wheel
-bl = robot.getDevice("wheel3") # back left wheel
-br = robot.getDevice("wheel4") # back right wheel
-
-wheels = [fl, fr, bl, br]
+wheels = [fr, fl, br, bl]
 
 SPEED = 6.28 #Max speed, we can change this as needed
 
@@ -34,11 +34,11 @@ def base_backwards():
     base_set_wheel_speeds_helper(speeds)
 
 def base_turn_left():
-    speeds = [-SPEED, SPEED, -SPEED, SPEED]
+    speeds = [SPEED, -SPEED, SPEED, -SPEED]
     base_set_wheel_speeds_helper(speeds);
 
 def base_turn_right():
-    speeds = [SPEED, -SPEED, SPEED, -SPEED]
+    speeds = [-SPEED, SPEED, -SPEED, SPEED]
     base_set_wheel_speeds_helper(speeds);
 
 '''
@@ -55,14 +55,15 @@ for between 50-150 timesteps (also a randomized choice). This serves as the expl
 
 def rotate_degree(theta):
     i = 0
-    if 0 <= theta < 180:
+    if 0 <= theta <= 180:
         ratio = theta/90
         if i < ratio*150:
             base_turn_right()
-    if 180 <= theta < 370:
-        ratio = (theta - 180)/90
+    if -180 <= theta < 0:
+        ratio = abs(theta)/90
         if i < ratio*150:
             base_turn_left()
+    i += 1
             
 def random_walk():
     i = 0
@@ -75,7 +76,7 @@ def random_walk():
         return direction
     if i >= rand_time:
         i = 0
-    i += 
+    i += 1
     
     
     
