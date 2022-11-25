@@ -64,19 +64,24 @@ visual_dict = {"Aqua_bright":(37, 221, 194),
 def make_image_array(wb_cam_output):
     """
     Function to get [px11, px12, px13...] array from Webot camera output
-    data structure, which returns BGRA instead
+    data structure
     Outputs array of RGB pixels (so each pxij is [R, G, B] array)
     Modified from standalone Spyder IDE version (not using PNG images)
     """
     output = []
-    for row_idx in range(len(wb_cam_output)):
+    print("Image dimensions:", len(wb_cam_output)," x ",len(wb_cam_output[0]))
+    #print(wb_cam_output)
+    
+    for col_idx in range(len(wb_cam_output)):
         scanline = []    # re-initialize at every row
-        for col_idx in range(len(wb_cam_output[0])):
-            red_pixel   = wb_cam_output[row_idx][col_idx][2]
-            green_pixel = wb_cam_output[row_idx][col_idx][1]
-            blue_pixel  = wb_cam_output[row_idx][col_idx][0]
+        for row_idx in range(len(wb_cam_output[0])):  
+            red_pixel   = wb_cam_output[col_idx][row_idx][0]
+            green_pixel = wb_cam_output[col_idx][row_idx][1]
+            blue_pixel  = wb_cam_output[col_idx][row_idx][2]
             scanline.append([red_pixel, green_pixel, blue_pixel])                             
         output.append(scanline)
+        
+    #print("Debugging check:", output[127][63])
     return output
 
 
@@ -90,7 +95,7 @@ def is_pixel_match(pixel_RGB, target_RGB):
     """
     flag = True       # True if pixel is target
     for idx in (0,1,2):
-        if pixel_RGB[idx] not in range(target_RGB[idx]-12, target_RGB[idx]+12):
+        if pixel_RGB[idx] not in range(target_RGB[idx]-25, target_RGB[idx]+25):
             flag = False
             break
     return flag 
@@ -99,7 +104,7 @@ def is_pixel_match(pixel_RGB, target_RGB):
 def zombie_lookout(image_array, x_size, y_size, threshold):
     """
     Main vision-based zombie alert function
-    Need to test vigorously with different inputs! 
+    Need to test vigorously with different inputs! image_array consists of vertical strips now
     Inputs:
         - Array
         - Image dimensions
@@ -112,9 +117,9 @@ def zombie_lookout(image_array, x_size, y_size, threshold):
     """
     filtered_array = []   # new list of RGB pixels for non-background objects
     filtered_pos = []     # positions to save x,y information
-    for row_idx in range(y_size):
-        for col_idx in range(x_size):
-            pix_RGB = image_array[row_idx][col_idx]    # a tuple
+    for col_idx in range(x_size):
+        for row_idx in range(y_size):
+            pix_RGB = image_array[col_idx][row_idx]    # a tuple
             # Now compare againsst known Sky, Mountain and Earth data
             if(is_pixel_match(pix_RGB, visual_dict["Sky"]) == False):
                 if(is_pixel_match(pix_RGB, visual_dict["Mountain"]) == False):    
@@ -124,7 +129,7 @@ def zombie_lookout(image_array, x_size, y_size, threshold):
 
 
     # Find the color via counting scores
-    print("Filtered length:",len(filtered_array))
+    #print("Debugging filtered length:",len(filtered_array))
     aqua_score = [0,0,0]  # pixel count, Sum of x (col_idx), Sum of y (row_idx)
     blue_score = [0,0,0]
     green_score = [0,0,0]
@@ -158,7 +163,7 @@ def zombie_lookout(image_array, x_size, y_size, threshold):
 
     # Primary zombie ID complete, analyze results
     # We estimate scaling factors for range and angle to zombie
-    print("\nDebugging scores:", aqua_score, blue_score, green_score, purple_score, "\n")
+    print("\nDebugging A/B/G/P zombie scores:", aqua_score, blue_score, green_score, purple_score, "\n")
     
     if aqua_score[0] < threshold and blue_score[0] < threshold and \
         green_score[0] < threshold and purple_score[0] < threshold:
@@ -198,6 +203,7 @@ def zombie_lookout(image_array, x_size, y_size, threshold):
     #plt.plot(debug_array_x,debug_array_y, ".")
     #plt.show()    
     
+    print("Zombie type", zombie_type, "at", angle, "deg boresight.")
     return zombie_type, angle
 
 
@@ -363,17 +369,21 @@ def main():
         # The following code is called every timestep:
            
         # Read from four cameras 
-        # camera1.saveImage('cam1.png',100)  # for testing purposes, best quality PNG save
-        front_RGB = make_image_array(camera3.getImage())   # to get RGB order
-        right_RGB = make_image_array(camera6.getImage()) 
-        back_RGB  = make_image_array(camera5.getImage()) 
-        left_RGB  = make_image_array(camera7.getImage()) 
+        # 
+        camera3.saveImage('cam3front.png',100)  # for testing purposes, best quality PNG save
+        camera6.saveImage('cam6right.png',100) 
+        camera5.saveImage('cam5back.png',100) 
+        camera7.saveImage('cam7left.png',100) 
+        front_RGB = make_image_array(camera3.getImageArray())   # to get RGB order
+        right_RGB = make_image_array(camera6.getImageArray()) 
+        back_RGB  = make_image_array(camera5.getImageArray()) 
+        left_RGB  = make_image_array(camera7.getImageArray()) 
         
         # Compute lookout data types; take care of threshold
-        front_lookout = zombie_lookout(front_RGB, 256, 128, 50) # x, y image size from specs
-        right_lookout = zombie_lookout(right_RGB, 128, 64, 50)
-        back_lookout  = zombie_lookout(back_RGB, 128, 64, 50)
-        left_lookout  = zombie_lookout(left_RGB, 128, 64, 50)
+        front_lookout = zombie_lookout(front_RGB, 256, 128, 5) # x, y image size from specs
+        right_lookout = zombie_lookout(right_RGB, 128, 64, 5)
+        back_lookout  = zombie_lookout(back_RGB, 128, 64, 5)
+        left_lookout  = zombie_lookout(left_RGB, 128, 64, 5)
 
         # Compute escape angle     
         escape_angle = compute_escape(front_lookout, right_lookout, back_lookout, left_lookout)
