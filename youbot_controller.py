@@ -457,6 +457,9 @@ def main():
             j = 0
             for j in range(100):
                 base_forwards()
+        else:
+            j = 0
+            # berry search
             
         
         #possible pseudocode for moving forward, then doing a 90 degree left turn
