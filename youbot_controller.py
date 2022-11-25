@@ -44,19 +44,14 @@ def base_turn_right():
     speeds = [-SPEED, SPEED, -SPEED, SPEED]
     base_set_wheel_speeds_helper(speeds);
 
-'''
-THE FOLLOWING FUNCTIONS WILL BE RUN EVERY TIMESTEP:
 
+def rotate_degree(theta):
+'''
 Rotate Function: input THETA tells us the degree from camera vision data. The robot takes 150 timesteps to
 complete a 90 degree rotation. So, the function calculates the ratio of the angle to 90 degrees, then
 multiplies this coefficient to 150. Thus, we are essentially only changing the number of time steps
 turn left or turn right is running (instead of the angle itself since we don't have a gps/gyro).
-
-Random walk function: moves forward for 100 timesteps, then rotates left or right (by randomized choice)
-for between 50-150 timesteps (also a randomized choice). This serves as the explore function for the robot. 
 '''
-
-def rotate_degree(theta):
     i = 0
     if 0 <= theta <= 180:
         ratio = theta/90
@@ -67,19 +62,29 @@ def rotate_degree(theta):
         if i < ratio*150:
             base_turn_left()
     i += 1
-            
-def random_walk():
+    return
+
+
+def random_walk(choice):
+'''
+Random walk function: moves forward for 100 timesteps, then rotates left or right (by randomized choice)
+for between 50-150 timesteps (also a randomized choice). This serves as the explore function for the robot. 
+'''
     i = 0
     rand_time = range(150,250)
+    
     if i <= 100:
-        return base_forwards()
+        base_forwards()
+        
     if 100 < i < rand_time:
-        base_reset()
-        direction = random.choice([base_turn_left, base_turn_right])
-        return direction
+        if choice == 0:
+            base_turn_left()
+        if choice == 1:
+            base_turn_right()
     if i >= rand_time:
         i = 0
     i += 1
+    return
 
 '''
 def waggle():
@@ -439,6 +444,12 @@ def main():
         escape_angle = compute_escape(front_lookout, right_lookout, back_lookout, left_lookout)
 
         # Feed escape_angle to motor
+        rotate_degree(escape_angle)
+
+        j = 0
+        for j in range(100):
+            base_forwards()
+            
         
         #possible pseudocode for moving forward, then doing a 90 degree left turn
         #if i <100
