@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Wed Nov 16 16:04:29 2022
-CPSC 472 Robot navigation computer vision analysis
+CPSC 472 Final Project: Robot navigation computer vision analysis
 To identify and work out ZOMBIE, BERRY type
-@author: yujun
+Kelly, Nicole, Yu Jun 
 """
 
 from PIL import Image
@@ -17,7 +16,11 @@ aqua_zombie = Image.open('aqua_legs.png')
 blue_zombie = Image.open('blue_legs.png')
 green_zombie = Image.open('green_legs.png')
 purple_zombie = Image.open('purple_legs.png')
-red_berry = Image.open('berry.png')
+red_berry = Image.open('berry_red.png')
+orange_berry = Image.open('berry_orange_stump.png')
+purple_berry = Image.open('berry_purple.png')
+yellow_berry = Image.open('berry_yellow.png')
+
 background = Image.open('background_normal.png')
 
 
@@ -115,15 +118,24 @@ background_array = make_image_array(background, image_x_size, image_y_size)
 analyze_image(background_array, image_x_size, image_y_size)
 
 print("\nRed berry:")
-red_berry_array = make_image_array(red_berry, image_x_size, image_y_size)
-analyze_image(red_berry_array, image_x_size, image_y_size)
+red_berry_array = make_image_array(red_berry, 128, 64)
+
+print("\nOrange berry:")
+orange_berry_array = make_image_array(orange_berry, 256, 128)
+
+print("\nPurple berry:")
+purple_berry_array = make_image_array(purple_berry, 256, 128)
+
+print("\nYellow berry:")
+yellow_berry_array = make_image_array(yellow_berry, 256, 128)
+
 
 """------------ Dominant color method ------------"""
 
 
 # Green zombie has very green part at (x,y)=(50,35) and shadow at (50,42)
-print("Main color:", red_berry_array[30][80])   # [y][x] indexing
-print("Shadow:", red_berry_array[30][40])   # shadow
+print("Main color:", orange_berry_array[60][120])   # [y][x] indexing
+print("Shadow:", orange_berry_array[60][60])   # shadow
 #print(background_array[25][15])
 
 
@@ -342,7 +354,12 @@ print(compute_escape(a_lookout, b_lookout, g_lookout, p_lookout))
 # berries
 plt.imshow(red_berry) 
 plt.show()
-
+plt.imshow(orange_berry) 
+plt.show()
+plt.imshow(yellow_berry) 
+plt.show()
+plt.imshow(purple_berry) 
+plt.show()
 
 """
 Aqua (37, 221, 194) and (10, 69, 67)
@@ -356,4 +373,4 @@ Mountain (77, 73, 78) std (11, 9, 7)
 Earth (217, 182, 169) std (4, 4, 6)
 """
 
-print("\nDone")
+print("\n~~~~ Done! ~~~~")
