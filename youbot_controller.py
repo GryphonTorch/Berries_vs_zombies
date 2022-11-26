@@ -12,9 +12,6 @@ print("Hi, I'm ready!")
 """ -------- Robot motion helper functions --------
 """    
 
-wheels = [fr, fl, br, bl]
-
-SPEED = 6.28 #Max speed, we can change this as needed
 
 def base_set_wheel_velocity(device, velocity):
     device.setPosition('inf')
@@ -71,28 +68,6 @@ turn left or turn right is running (instead of the angle itself since we don't h
     i += 1
     return
 
-
-def random_walk(choice):
-'''
-Random walk function: moves forward for 100 timesteps, then rotates left or right (by randomized choice)
-for between 50-150 timesteps (also a randomized choice). This serves as the explore function for the robot. 
-'''
-    i = 0
-    rand_time = range(150,250)
-    
-    if i <= 100:
-        base_forwards()
-        
-    if 100 < i < rand_time:
-        if choice == 0:
-            base_turn_left()
-        if choice == 1:
-            base_turn_right()
-    if i >= rand_time:
-        i = 0
-    i += 1
-    return
-
 '''
 def waggle():
     # make robot move forward in a zigzag, to cover all bases (blindspots)
@@ -100,13 +75,12 @@ def waggle():
     return
 '''
 
-""" -------- Camera helper functions --------
+""" -------- Camera Vision Helper functions --------
     Based on standalone testing of camera images, we obtained representative
-    R, G, B pixel values for various zombies and terrain features. This allows
+    R, G, B pixel values for various zombies, berries, and terrain features. This allows
     the robot to filter away the background and focus on possible zombie threats
-    in the field of vision. 
+    and berries in the field of vision. 
 """
-
 
 # Dictionary of items of interest in RGB order, obtained from testing
 visual_dict = {"Aqua_bright":(37, 221, 194), 
@@ -119,7 +93,15 @@ visual_dict = {"Aqua_bright":(37, 221, 194),
                "Purple_shadow":(87, 37, 154),
                "Sky":(90, 109, 152),
                "Mountain":(77, 73, 78),
-               "Earth":(217, 182, 169) 
+               "Earth":(217, 182, 169)
+               "Red_bright": (211, 64, 48)
+               "Red_shadow": (71, 19, 18)
+               "Pink_bright":
+               "Pink_shadow":
+               "Orange_bright":
+               "Orange_shadow":
+               "Yellow_bright":
+               "Yellow_shadow":
                }
 
 
@@ -153,7 +135,7 @@ def is_pixel_match(pixel_RGB, target_RGB):
     Helper function. Input: pixel RGB is tuple of three values
     Assume standard deviation (error bar) of +/-10 for all values
     Returns True if match, False if not
-    10 is empirically tested; if too big we can't pin down zombie type
+    10 is empirically tested; if too big we can't pin down zombie/berry type
     """
     flag = True       # True if pixel is target
     for idx in (0,1,2):
@@ -162,6 +144,12 @@ def is_pixel_match(pixel_RGB, target_RGB):
             break
     return flag 
 
+'''
+ESCAPE ZOMBIE FUNCTIONS
+
+Zombie lookout - vision-based zombie alert function
+Zombie escape - calculate best angle of escape based on four camera lookout inputs
+'''
 
 def zombie_lookout(image_array, x_size, y_size, threshold):
     """
@@ -269,9 +257,6 @@ def zombie_lookout(image_array, x_size, y_size, threshold):
     return zombie_type, angle
 
 
-"""-------- Robot escape logic helper functions --------"""
-
-
 def compute_escape(front_lookout, right_lookout, back_lookout, left_lookout):
     """
     Function to calculate escape TURN angle based on four camera lookouts
@@ -303,6 +288,186 @@ def compute_escape(front_lookout, right_lookout, back_lookout, left_lookout):
         return escape_angle        # turn clockwise
 
 
+'''
+EXPLORE AND EAT BERRIES FUNCTION
+
+random_walk - when no berries are around, create random trajectory
+berry_lookout - vision-based berry function
+berry_distance_calculation - calculate closest berry
+berry_angle - calculate angle of closest berry
+'''
+
+
+def random_walk(choice):
+'''
+Random walk function: moves forward for 100 timesteps, then rotates left or right
+for between 50-150 timesteps (a randomized choice). This serves as the explore function for the robot.
+
+INPUT: Choice - random choice between 0 and 1 to tell the robot to turn left or right
+for a certain number of timesteps
+'''
+    i = 0
+    rand_time = range(150,250)
+    
+    if i <= 100:
+        base_forwards()
+        
+    if 100 < i < rand_time:
+        if choice == 0:
+            base_turn_left()
+        if choice == 1:
+            base_turn_right()
+    if i >= rand_time:
+        i = 0
+    i += 1
+    return
+
+def berry_lookout(image_array, x_size, y_size, threshold):
+    """
+    Adapted from Yu Jun's Comp Vision for Zombie Lookout function
+    Main vision-based berry function
+    Inputs:
+        - Array
+        - Image dimensions
+        - Pixel threshold for when berries are detected
+    Do nothing if no berries above threshold, else return (type, angle(degree), distance) triple 
+    """
+    filtered_array = []   # new list of RGB pixels for non-background objects
+    filtered_pos = []     # positions to save x,y information
+    for col_idx in range(x_size):
+        for row_idx in range(y_size):
+            pix_RGB = image_array[col_idx][row_idx]    # a tuple
+            # Now compare againsst known Sky, Mountain and Earth data
+            if(is_pixel_match(pix_RGB, visual_dict["Sky"]) == False):
+                if(is_pixel_match(pix_RGB, visual_dict["Mountain"]) == False):    
+                    if(is_pixel_match(pix_RGB, visual_dict["Earth"]) == False): 
+                        filtered_array.append(pix_RGB)
+                        filtered_pos.append((col_idx, row_idx))  # note order!
+
+
+    # Find the color via counting scores
+    #print("Debugging filtered length:",len(filtered_array))
+    red_score = [0,0,0]  # pixel count, Sum of x (col_idx), Sum of y (row_idx)
+    pink_score = [0,0,0]
+    orange_score = [0,0,0]
+    yellow_score = [0,0,0]
+    #debug_array_x = []    # for debugging to see which pixels are picked up
+    #debug_array_y = []
+    
+    for idx in range(len(filtered_array)):
+        if (is_pixel_match(filtered_array[idx],visual_dict["Red_bright"]) or is_pixel_match(filtered_array[idx], visual_dict["Red_shadow"])):
+            red_score[0] += 1.0  # increment count
+            red_score[1] += filtered_pos[idx][0] # col_idx
+            red_score[2] += filtered_pos[idx][1] # row_idx
+            
+        if (is_pixel_match(filtered_array[idx],visual_dict["Pink_bright"]) or is_pixel_match(filtered_array[idx], visual_dict["Pink_shadow"])):
+            pink_score[0] += 1.0  # increment count
+            pink_score[1] += filtered_pos[idx][0] # col_idx
+            pink_score[2] += filtered_pos[idx][1] # row_idx
+            
+            
+        if (is_pixel_match(filtered_array[idx],visual_dict["Orange_bright"]) or is_pixel_match(filtered_array[idx], visual_dict["Orange_shadow"])):
+            orange_score[0] += 1.0  # increment count
+            orange_score[1] += filtered_pos[idx][0] # col_idx
+            orange_score[2] += filtered_pos[idx][1] # row_idx
+            
+            
+        if (is_pixel_match(filtered_array[idx],visual_dict["Yellow_bright"]) or is_pixel_match(filtered_array[idx], visual_dict["Yellow_shadow"])):
+            yellow_score[0] += 1.0  # increment count
+            yellow_score[1] += filtered_pos[idx][0] # col_idx
+            yellow_score[2] += filtered_pos[idx][1] # row_idx
+            #debug_array_x.append(filtered_pos[idx][0])
+            #debug_array_y.append(filtered_pos[idx][1])
+
+    # Primary berry color ID complete, analyze results
+    # We estimate scaling factors for range and angle to zombie
+    print("\nDebugging R/P/O/Y berry scores:", red_score, pink_score, orange_score, yellow_score, "\n")
+    
+    if red_score[0] < threshold and pink_score[0] < threshold and \
+        orange_score[0] < threshold and yellow_score[0] < threshold:
+        return None
+    
+    if red_score[0] >= pink_score[0] and red_score[0] >= orange_score[0] and red_score[0] >= yellow_score[0]:
+        # red berry closest
+        berry_type = "red"
+        berry_x = red_score[1] / red_score[0]    # float, x-center of mass
+        berry_distance = (1-red_score[0]/(x_size*y_size))*5.0 # in meters
+        angle = (berry_x - x_size/2)/x_size * 28.5   # angles - estimation from 1 rad FOV!
+       
+    elif pink_score[0] >= orange_score[0] and pink_score[0] >= yellow_score[0]:
+        # pink berry closest 
+        berry_type = "pink"
+        berry_x = pink_score[1] / pink_score[0]    # float, x-center of mass
+        berry_distance = (1-pink_score[0]/(x_size*y_size))*5.0 # in meters
+        angle = (berry_x - x_size/2)/x_size * 28.5   # angles - estimation from 1 rad FOV!
+        
+    elif orange_score[0] >= yellow_score[0]:
+        # orange berry closest
+        berry_type = "orange"
+        berry_x = orange_score[1] / orange_score[0]    # float, x-center of mass
+        berry_distance = (1-orange_score[0]/(x_size*y_size))*5.0 # in meters
+        angle = (berry_x - x_size/2)/x_size * 28.5   # angles - estimation from 1 rad FOV!
+    
+    else:
+        # yellow berry closest
+        berry_type = "yellow"
+        berry_x = yellow_score[1] / yellow_score[0]    # float, x-center of mass
+        berry_distance = (1-yellow_score[0]/(x_size*y_size))*5.0 # in meters
+        angle = (berry_x - x_size/2)/x_size * 28.5   # angles - estimation from 1 rad FOV!
+       
+    # debug 
+    #plt.plot(debug_array_x,debug_array_y, ".")
+    #plt.show()    
+    
+    print("Berry type", berry_type, "at", angle, "deg boresight, at", berry_distance, "meters")
+    return berry_type, angle, berry_distance
+
+
+def berry_distance_comparison(front_food, right_food, back_food, left_food):
+'''
+Returns closest berry in distance
+'''
+    if front_food[2] >= right_food[2]  and front_food[2]  >= back_food[2]  and front_food[2]  >= left_food[2] :
+        closest_berry = front_food
+        return closest_berry
+    
+    elif:
+        right_food[2]  >= back_food[2]  and right_food[2]  >= left_food[2] 
+        closest_berry = right_food
+        return right_berry
+    
+    elif:
+        back_food[2]  >= left_food[2] 
+        closest_berry = back_food
+        return closest_berry
+    
+    else:
+        closest_berry = left_food
+        return closest_berry
+
+def berry_angle_calculation(closest_view):
+    """
+    Function to calculate berry angle based on four camera lookouts
+    Output berry angle (from -180 to 180 deg), for motor action
+    Modified based on camera input
+    """
+    
+    berry_angle = 0
+    if closest_view = front_food:
+        berry_angle = front_food[1]
+    if closest_view = right_food:
+        berry_angle = right_food[1] + 90
+    if closest_view = back_food:
+        berry_angle = back_food[1] + 180  # see math
+    if closest_view = left_food:
+        berry_angle = left_food[1] + 270
+    
+    if berry_angle > 180:
+        return 360 - berry_angle    # turn left/anticlockwise
+    else:
+        return berry_angle        # turn clockwise
+
+
 
 #------------------CHANGE CODE ABOVE HERE ONLY--------------------------
 
@@ -328,8 +493,9 @@ def main():
     #------------------CHANGE CODE BELOW HERE ONLY--------------------------
     
     #COMMENT OUT ALL SENSORS THAT ARE NOT USED. READ SPEC SHEET FOR MORE DETAILS
-    #accelerometer = robot.getDevice("accelerometer")
-    #accelerometer.enable(timestep)
+    
+    accelerometer = robot.getDevice("accelerometer") # 100 cost
+    accelerometer.enable(timestep)
     
     #gps = robot.getDevice("gps")
     #gps.enable(timestep)
@@ -337,14 +503,14 @@ def main():
     #compass = robot.getDevice("compass")
     #compass.enable(timestep)
     
-    #camera1 = robot.getDevice("ForwardLowResBigFov")
-    #camera1.enable(timestep)
+    camera1 = robot.getDevice("ForwardLowResBigFov") # 300 cost
+    camera1.enable(timestep)
     
     #camera2 = robot.getDevice("ForwardHighResSmallFov")
     #camera2.enable(timestep)
     
-    camera3 = robot.getDevice("ForwardHighRes")   # 400 cost
-    camera3.enable(timestep)
+    #camera3 = robot.getDevice("ForwardHighRes")   
+    #camera3.enable(timestep)
     
     #camera4 = robot.getDevice("ForwardHighResSmall")
     #camera4.enable(timestep)
@@ -376,6 +542,12 @@ def main():
     #lidar = robot.getDevice("lidar")
     #lidar.enable(timestep)
     
+    wheels = [fr, fl, br, bl]
+    SPEED = 6.28 #Max speed, we can change this as needed
+    base_set_wheel_veloctiy(wheels, 'inf')
+    
+    '''
+    ALTERNATIVE TO INITIALIZING WHEELS
     fr = robot.getDevice("wheel1")
     fl = robot.getDevice("wheel2")
     br = robot.getDevice("wheel3")
@@ -392,7 +564,7 @@ def main():
     br.setVelocity(0)
     bl.setPosition(float('inf'))
     bl.setVelocity(0)
-
+    '''
     
            
 
@@ -431,18 +603,19 @@ def main():
         # The following code is called every timestep:
            
         # Read from four cameras 
-        # 
-        camera3.saveImage('cam3front.png',100)  # for testing purposes, best quality PNG save
+        
+        camera1.saveImage('cam1front.png',100)  # for testing purposes, best quality PNG save
         camera6.saveImage('cam6right.png',100) 
         camera5.saveImage('cam5back.png',100) 
-        camera7.saveImage('cam7left.png',100) 
-        front_RGB = make_image_array(camera3.getImageArray())   # to get RGB order
+        camera7.saveImage('cam7left.png',100)
+        
+        front_RGB = make_image_array(camera1.getImageArray())   # to get RGB order
         right_RGB = make_image_array(camera6.getImageArray()) 
         back_RGB  = make_image_array(camera5.getImageArray()) 
         left_RGB  = make_image_array(camera7.getImageArray()) 
         
         # Compute lookout data types; take care of threshold
-        front_lookout = zombie_lookout(front_RGB, 256, 128, 5) # x, y image size from specs
+        front_lookout = zombie_lookout(front_RGB, 128, 64, 5) # x, y image size from specs
         right_lookout = zombie_lookout(right_RGB, 128, 64, 5)
         back_lookout  = zombie_lookout(back_RGB, 128, 64, 5)
         left_lookout  = zombie_lookout(left_RGB, 128, 64, 5)
@@ -458,11 +631,48 @@ def main():
             for j in range(100):
                 base_forwards()
         else:
-            j = 0
-            # berry search
-            
-        # Berry Search
 
+            '''
+            BERRY SEARCH PORTION: COMPUTING FOR EACH TIMESTEP
+            - Getting closest berry at each field of view
+            - Getting closest berry among all four cameras
+            - Calculating angle of that single berry
+            '''
+                    
+            # Compute type and angle of food
+            front_food = berry_lookout(front_RGB, 128, 64, 1) # x, y image size from specs
+            right_food = berry_lookout(right_RGB, 128, 64, 1)
+            back_food  = berry_lookout(back_RGB, 128, 64, 1)
+            left_food  = berry_lookout(left_RGB, 128, 64, 1)
+
+            closest_view = berry_distance_comparison(front_food, right_food, back_food, left_food)
+            berry_angle = berry_calculation(closest_view)
+
+            '''
+            LEARNING ALGORITHM:
+            We create a list of good berries, once one berry gives us a -20 energy, we black list it.
+            '''
+
+
+            good_berry_list = ["red", "orange", "pink", "yellow"]
+
+            if closest_view[0] in good_berry_list:
+                
+                rotate_degree(berry_angle)
+                init_energy = robot_info[1]
+                
+                while front_food != None: 
+                    base_forward()
+                    
+                if front_food == None:
+                    final_energy = robot_info[1]
+                    
+                if (final_energy - init_energy) == -20:
+                    good_berry_list.remove(closest_view[0])
+
+            else:
+                random_walk()
+                '''
         
         #possible pseudocode for moving forward, then doing a 90 degree left turn
         #if i <100
@@ -479,7 +689,8 @@ def main():
         #i+=1
         
         #make decisions using inputs if you choose to do so
-         
+         '''
+                
         #------------------CHANGE CODE ABOVE HERE ONLY--------------------------
         
         
