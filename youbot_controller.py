@@ -330,7 +330,7 @@ def berry_lookout(image_array, x_size, y_size, threshold):
         - Pixel threshold for when berries are detected
     Do nothing if no berries above threshold, else return (type, angle(degree), distance) triple 
     """
-    print("Debugging: in berry_lookout mode")
+    #print("Debugging: in berry_lookout mode")
     
     filtered_array = []   # new list of RGB pixels for non-background objects
     filtered_pos = []     # positions to save x,y information
@@ -388,12 +388,12 @@ def berry_lookout(image_array, x_size, y_size, threshold):
         berry_type = "none"
         berry_distance = 1000
         angle = 0
-        print("No berries detected")
+        #print("No berries detected")
     
     elif red_score[0] >= pink_score[0] and red_score[0] >= orange_score[0] and red_score[0] >= yellow_score[0]:
         # red berry closest
         berry_type = "red"
-        print("Debugging: red, red_score[0]", red_score[0], "red_score[1]", red_score[1]) 
+        #print("Debugging: red, red_score[0]", red_score[0], "red_score[1]", red_score[1]) 
         berry_x = red_score[1] / red_score[0]    # float, x-center of mass
         berry_distance = (1-red_score[0]/(x_size*y_size))*5.0 # in meters
         angle = (berry_x - x_size/2)/x_size * 28.5   # angles - estimation from 1 rad FOV!
@@ -423,29 +423,22 @@ def berry_lookout(image_array, x_size, y_size, threshold):
     #plt.plot(debug_array_x,debug_array_y, ".")
     #plt.show()    
     
-    print("Berry type", berry_type, "at", angle, "deg boresight, at", berry_distance, "meters")
+    #print("Berry type", berry_type, "at", angle, "deg boresight, at", berry_distance, "meters")
     return berry_type, angle, berry_distance
 
 
 def berry_distance_comparison(front_food, right_food, back_food, left_food):
     """
-    Returns closest berry in distance
+    Returns closest berry in distance (color, angle, distance) tuple
     """
     if front_food[2] <= right_food[2]  and front_food[2]  <= back_food[2]  and front_food[2]  <= left_food[2] :
-        closest_berry = front_food
-        return closest_berry
-    
+        return front_food
     elif right_food[2]  <= back_food[2]  and right_food[2]  <= left_food[2] :
-        closest_berry = right_food
-        return closest_berry
-    
+        return right_food
     elif back_food[2]  <= left_food[2] :
-        closest_berry = back_food
-        return closest_berry
-    
+        return back_food
     else:
-        closest_berry = left_food
-        return closest_berry
+        return left_food
 
 def berry_angle_calculation(front_food, right_food, back_food, left_food, closest_view):
     """
@@ -626,12 +619,15 @@ def main():
             for j in range(100):
                 base_forwards(wheels)
         else:
+        
+            print("No zombie detected")
+            
 
             """
-            BERRY SEARCH PORTION: COMPUTING FOR EACH TIMESTEP
-            - Getting closest berry at each field of view
-            - Getting closest berry among all four cameras
-            - Calculating angle of that single berry
+            #BERRY SEARCH PORTION: COMPUTING FOR EACH TIMESTEP
+            #- Getting closest berry at each field of view
+            #- Getting closest berry among all four cameras
+            #- Calculating angle of that single berry
             """
                     
             # Compute type and angle of food
@@ -640,34 +636,36 @@ def main():
             back_food  = berry_lookout(back_RGB, 128, 64, 1)
             left_food  = berry_lookout(left_RGB, 128, 64, 1)
 
+            
             closest_view = berry_distance_comparison(front_food, right_food, back_food, left_food)
             berry_angle = berry_angle_calculation(front_food,right_food,back_food,left_food, closest_view)
 
             """
-            LEARNING ALGORITHM:
-            We create a list of good berries, once one berry gives us a -20 energy, we black list it.
+            #LEARNING ALGORITHM:
+            #We create a list of good berries, once one berry gives us a -20 energy, we black list it.
             """
-
+            
 
             good_berry_list = ["red", "orange", "pink", "yellow"]
-
+            
             if closest_view[0] in good_berry_list:
-                
                 rotate_degree(wheels, berry_angle)
                 init_energy = robot_info[1]
                 
-                while front_food != None: 
-                    base_forwards(wheels)
+                #while front_food != None: 
+                #    base_forwards(wheels)
                     
-                if front_food == None:
-                    final_energy = robot_info[1]
+                #if front_food == None:
+                #    final_energy = robot_info[1]
                     
-                if (final_energy - init_energy) == -20:
-                    good_berry_list.remove(closest_view[0])
+                #if (final_energy - init_energy) == -20:
+                #    good_berry_list.remove(closest_view[0])
 
             else:
                 choice = random.choice([0,1])
                 random_walk(wheels, choice)
+            
+            """
                 
         """
         #possible pseudocode for moving forward, then doing a 90 degree left turn
@@ -685,7 +683,7 @@ def main():
         #i+=1
         
         #make decisions using inputs if you choose to do so
-         """
+         
                 
         #------------------CHANGE CODE ABOVE HERE ONLY--------------------------
         
