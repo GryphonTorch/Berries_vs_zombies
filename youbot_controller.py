@@ -383,7 +383,9 @@ def berry_lookout(image_array, x_size, y_size, threshold):
     
     if red_score[0] < threshold and pink_score[0] < threshold and \
         orange_score[0] < threshold and yellow_score[0] < threshold:
-        return None
+        berry_type = "none"
+        berry_distance = 1000
+        angle = 0
     
     if red_score[0] >= pink_score[0] and red_score[0] >= orange_score[0] and red_score[0] >= yellow_score[0]:
         # red berry closest
@@ -425,15 +427,15 @@ def berry_distance_comparison(front_food, right_food, back_food, left_food):
     """
     Returns closest berry in distance
     """
-    if front_food[2] >= right_food[2]  and front_food[2]  >= back_food[2]  and front_food[2]  >= left_food[2] :
+    if front_food[2] <= right_food[2]  and front_food[2]  <= back_food[2]  and front_food[2]  <= left_food[2] :
         closest_berry = front_food
         return closest_berry
     
-    elif right_food[2]  >= back_food[2]  and right_food[2]  >= left_food[2] :
+    elif right_food[2]  <= back_food[2]  and right_food[2]  <= left_food[2] :
         closest_berry = right_food
         return closest_berry
     
-    elif back_food[2]  >= left_food[2] :
+    elif back_food[2]  <= left_food[2] :
         closest_berry = back_food
         return closest_berry
     
