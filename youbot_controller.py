@@ -12,68 +12,62 @@ print("Hi, I'm ready!")
 """ -------- Robot motion helper functions --------
 """    
 
-
-def base_set_wheel_velocity(device, velocity):
-    device.setPosition('inf')
-    device.setVelocity(velocity)
-    return
-
-def base_set_wheel_speeds_helper(speeds):
+def base_set_wheel_speeds_helper(wheels, speeds):
     for i in range(4):
-        base_set_wheel_velocity(wheels[i], speeds[i])
+        wheels[i].setVelocity(speeds[i])
     return
 
-def base_reset():
+def base_reset(wheels):
     speeds = [0.0, 0.0, 0.0, 0.0]
-    base_set_wheel_speeds_helper(speeds)
+    base_set_wheel_speeds_helper(wheels, speeds)
     return
 
-def base_forwards():
-    speeds = [SPEED, SPEED, SPEED, SPEED]
-    base_set_wheel_speeds_helper(speeds)
+def base_forwards(wheels):
+    speeds = [6.28, 6.28, 6.28, 6.28]
+    base_set_wheel_speeds_helper(wheels, speeds)
     return
 
-def base_backwards():
-    speeds = [-SPEED, -SPEED, -SPEED, -SPEED]
-    base_set_wheel_speeds_helper(speeds)
+def base_backwards(wheels):
+    speeds = [-6.28, -6.28, -6.28, -6.28]
+    base_set_wheel_speeds_helper(wheels, speeds)
     return
 
-def base_turn_left():
-    speeds = [SPEED, -SPEED, SPEED, -SPEED]
-    base_set_wheel_speeds_helper(speeds)
+def base_turn_left(wheels):
+    speeds = [6.28, -6.28, 6.28, -6.28]
+    base_set_wheel_speeds_helper(wheels, speeds)
     return
 
-def base_turn_right():
-    speeds = [-SPEED, SPEED, -SPEED, SPEED]
-    base_set_wheel_speeds_helper(speeds)
+def base_turn_right(wheels):
+    speeds = [-6.28, 6.28, -6.28, 6.28]
+    base_set_wheel_speeds_helper(wheels, speeds)
     return
 
 
-def rotate_degree(theta):
-'''
-Rotate Function: input THETA tells us the degree from camera vision data. The robot takes 150 timesteps to
-complete a 90 degree rotation. So, the function calculates the ratio of the angle to 90 degrees, then
-multiplies this coefficient to 150. Thus, we are essentially only changing the number of time steps
-turn left or turn right is running (instead of the angle itself since we don't have a gps/gyro).
-'''
+def rotate_degree(wheels, theta):
+    """
+    Rotate Function: input THETA tells us the degree from camera vision data. The robot takes 150 timesteps to
+    complete a 90 degree rotation. So, the function calculates the ratio of the angle to 90 degrees, then
+    multiplies this coefficient to 150. Thus, we are essentially only changing the number of time steps
+    turn left or turn right is running (instead of the angle itself since we don't have a gps/gyro).
+    """
     i = 0
     if 0 <= theta <= 180:
         ratio = theta/90
         if i < ratio*150:
-            base_turn_right()
+            base_turn_right(wheels)
     if -180 <= theta < 0:
         ratio = abs(theta)/90
         if i < ratio*150:
-            base_turn_left()
+            base_turn_left(wheels)
     i += 1
     return
 
-'''
+"""
 def waggle():
     # make robot move forward in a zigzag, to cover all bases (blindspots)
 
     return
-'''
+"""
 
 """ -------- Camera Vision Helper functions --------
     Based on standalone testing of camera images, we obtained representative
@@ -93,15 +87,19 @@ visual_dict = {"Aqua_bright":(37, 221, 194),
                "Purple_shadow":(87, 37, 154),
                "Sky":(90, 109, 152),
                "Mountain":(77, 73, 78),
-               "Earth":(217, 182, 169)
-               "Red_bright": (211, 64, 48)
-               "Red_shadow": (71, 19, 18)
-               "Pink_bright":
-               "Pink_shadow":
-               "Orange_bright":
-               "Orange_shadow":
-               "Yellow_bright":
-               "Yellow_shadow":
+               "Earth":(217, 182, 169),
+               "Red_bright": (211, 64, 48),
+               "Red_shadow": (71, 19, 18),
+               "Pink_bright": (214, 142, 187),
+               "Pink_shadow": (88, 53, 87),
+               "Orange_bright": (198, 127, 87),
+               "Orange_shadow": (64, 39, 33),
+               "Yellow_bright": (185, 173, 28),
+               "Yellow_shadow": (71, 68, 16),
+               "Stump_bright": (31, 31, 34),
+               "Stump_shadow": (10, 11, 15),
+               "Wall_bright": (211, 212, 216),
+               "Wall_shadow": (71, 76, 97)
                }
 
 
@@ -144,12 +142,12 @@ def is_pixel_match(pixel_RGB, target_RGB):
             break
     return flag 
 
-'''
+"""
 ESCAPE ZOMBIE FUNCTIONS
 
 Zombie lookout - vision-based zombie alert function
 Zombie escape - calculate best angle of escape based on four camera lookout inputs
-'''
+"""
 
 def zombie_lookout(image_array, x_size, y_size, threshold):
     """
@@ -288,35 +286,35 @@ def compute_escape(front_lookout, right_lookout, back_lookout, left_lookout):
         return escape_angle        # turn clockwise
 
 
-'''
+"""
 EXPLORE AND EAT BERRIES FUNCTION
 
 random_walk - when no berries are around, create random trajectory
 berry_lookout - vision-based berry function
 berry_distance_calculation - calculate closest berry
 berry_angle - calculate angle of closest berry
-'''
+"""
 
 
-def random_walk(choice):
-'''
-Random walk function: moves forward for 100 timesteps, then rotates left or right
-for between 50-150 timesteps (a randomized choice). This serves as the explore function for the robot.
-
-INPUT: Choice - random choice between 0 and 1 to tell the robot to turn left or right
-for a certain number of timesteps
-'''
+def random_walk(wheels, choice):
+    """
+    Random walk function: moves forward for 100 timesteps, then rotates left or right
+    for between 50-150 timesteps (a randomized choice). This serves as the explore function for the robot.
+    
+    INPUT: Choice - random choice between 0 and 1 to tell the robot to turn left or right
+    for a certain number of timesteps
+    """
     i = 0
     rand_time = range(150,250)
     
     if i <= 100:
-        base_forwards()
+        base_forwards(wheels)
         
     if 100 < i < rand_time:
         if choice == 0:
-            base_turn_left()
+            base_turn_left(wheels)
         if choice == 1:
-            base_turn_right()
+            base_turn_right(wheels)
     if i >= rand_time:
         i = 0
     i += 1
@@ -424,20 +422,18 @@ def berry_lookout(image_array, x_size, y_size, threshold):
 
 
 def berry_distance_comparison(front_food, right_food, back_food, left_food):
-'''
-Returns closest berry in distance
-'''
+    """
+    Returns closest berry in distance
+    """
     if front_food[2] >= right_food[2]  and front_food[2]  >= back_food[2]  and front_food[2]  >= left_food[2] :
         closest_berry = front_food
         return closest_berry
     
-    elif:
-        right_food[2]  >= back_food[2]  and right_food[2]  >= left_food[2] 
+    elif right_food[2]  >= back_food[2]  and right_food[2]  >= left_food[2] :
         closest_berry = right_food
-        return right_berry
+        return closest_berry
     
-    elif:
-        back_food[2]  >= left_food[2] 
+    elif back_food[2]  >= left_food[2] :
         closest_berry = back_food
         return closest_berry
     
@@ -453,13 +449,13 @@ def berry_angle_calculation(closest_view):
     """
     
     berry_angle = 0
-    if closest_view = front_food:
+    if closest_view == front_food:
         berry_angle = front_food[1]
-    if closest_view = right_food:
+    if closest_view == right_food:
         berry_angle = right_food[1] + 90
-    if closest_view = back_food:
+    if closest_view == back_food:
         berry_angle = back_food[1] + 180  # see math
-    if closest_view = left_food:
+    if closest_view == left_food:
         berry_angle = left_food[1] + 270
     
     if berry_angle > 180:
@@ -542,21 +538,16 @@ def main():
     #lidar = robot.getDevice("lidar")
     #lidar.enable(timestep)
     
-    wheels = [fr, fl, br, bl]
-    SPEED = 6.28 #Max speed, we can change this as needed
-    base_set_wheel_veloctiy(wheels, 'inf')
-    
-    '''
-    ALTERNATIVE TO INITIALIZING WHEELS
+    # INITIALIZE WHEEL POSITIONS
     fr = robot.getDevice("wheel1")
     fl = robot.getDevice("wheel2")
     br = robot.getDevice("wheel3")
     bl = robot.getDevice("wheel4")
-    
-    
+        
+    wheels = [fr, fl, br, bl]
+    SPEED = 6.28
 
-    # float('inf')    differential wheel velocity to turn 10,1,10,1
-    fr.setPosition(float('inf'))   # modified
+    fr.setPosition(float('inf'))   
     fr.setVelocity(0)
     fl.setPosition(float('inf'))
     fl.setVelocity(0)
@@ -564,9 +555,7 @@ def main():
     br.setVelocity(0)
     bl.setPosition(float('inf'))
     bl.setVelocity(0)
-    '''
     
-           
 
     #------------------CHANGE CODE ABOVE HERE ONLY--------------------------
     
@@ -624,20 +613,20 @@ def main():
         escape_angle = compute_escape(front_lookout, right_lookout, back_lookout, left_lookout)
 
         # Feed escape_angle to motor
-        rotate_degree(escape_angle)
+        rotate_degree(wheels, escape_angle)
 
         if (front_lookout != None or right_lookout != None or back_lookout != None or left_lookout != None):
             j = 0
             for j in range(100):
-                base_forwards()
+                base_forwards(wheels)
         else:
 
-            '''
+            """
             BERRY SEARCH PORTION: COMPUTING FOR EACH TIMESTEP
             - Getting closest berry at each field of view
             - Getting closest berry among all four cameras
             - Calculating angle of that single berry
-            '''
+            """
                     
             # Compute type and angle of food
             front_food = berry_lookout(front_RGB, 128, 64, 1) # x, y image size from specs
@@ -648,17 +637,17 @@ def main():
             closest_view = berry_distance_comparison(front_food, right_food, back_food, left_food)
             berry_angle = berry_calculation(closest_view)
 
-            '''
+            """
             LEARNING ALGORITHM:
             We create a list of good berries, once one berry gives us a -20 energy, we black list it.
-            '''
+            """
 
 
             good_berry_list = ["red", "orange", "pink", "yellow"]
 
             if closest_view[0] in good_berry_list:
                 
-                rotate_degree(berry_angle)
+                rotate_degree(wheels, berry_angle)
                 init_energy = robot_info[1]
                 
                 while front_food != None: 
@@ -671,9 +660,10 @@ def main():
                     good_berry_list.remove(closest_view[0])
 
             else:
-                random_walk()
-                '''
-        
+                choice = random.choice([0,1])
+                random_walk(wheels, choice)
+                
+        """
         #possible pseudocode for moving forward, then doing a 90 degree left turn
         #if i <100
             #base_forwards() -> can implement in Python with Webots C code (/Zombie world/libraries/youbot_control) as an example or make your own
@@ -689,7 +679,7 @@ def main():
         #i+=1
         
         #make decisions using inputs if you choose to do so
-         '''
+         """
                 
         #------------------CHANGE CODE ABOVE HERE ONLY--------------------------
         
