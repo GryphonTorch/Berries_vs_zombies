@@ -17,6 +17,7 @@ aqua_zombie = Image.open('aqua_legs.png')
 blue_zombie = Image.open('blue_legs.png')
 green_zombie = Image.open('green_legs.png')
 purple_zombie = Image.open('purple_legs.png')
+red_berry = Image.open('berry.png')
 background = Image.open('background_normal.png')
 
 
@@ -113,14 +114,17 @@ print("\nBackground:")
 background_array = make_image_array(background, image_x_size, image_y_size)
 analyze_image(background_array, image_x_size, image_y_size)
 
+print("\nRed berry:")
+red_berry_array = make_image_array(red_berry, image_x_size, image_y_size)
+analyze_image(red_berry_array, image_x_size, image_y_size)
 
 """------------ Dominant color method ------------"""
 
 
 # Green zombie has very green part at (x,y)=(50,35) and shadow at (50,42)
-print(background_array[5][20])   # [y][x] indexing
-print(background_array[30][80])   # shadow
-print(background_array[25][15])
+print("Main color:", red_berry_array[30][80])   # [y][x] indexing
+print("Shadow:", red_berry_array[30][40])   # shadow
+#print(background_array[25][15])
 
 
 def compute_background_features(background_array):
@@ -335,6 +339,9 @@ print(zombie_lookout(background_array, image_x_size, image_y_size, 50))
 
 print(compute_escape(a_lookout, b_lookout, g_lookout, p_lookout))
 
+# berries
+plt.imshow(red_berry) 
+plt.show()
 
 
 """
