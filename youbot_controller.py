@@ -111,7 +111,7 @@ def make_image_array(wb_cam_output):
     Modified from standalone Spyder IDE version (not using PNG images)
     """
     output = []
-    print("Image dimensions:", len(wb_cam_output)," x ",len(wb_cam_output[0]))
+    #print("Image dimensions:", len(wb_cam_output)," x ",len(wb_cam_output[0]))
     #print(wb_cam_output)
     
     for col_idx in range(len(wb_cam_output)):
@@ -137,7 +137,7 @@ def is_pixel_match(pixel_RGB, target_RGB):
     """
     flag = True       # True if pixel is target
     for idx in (0,1,2):
-        if pixel_RGB[idx] not in range(target_RGB[idx]-25, target_RGB[idx]+25):
+        if pixel_RGB[idx] not in range(target_RGB[idx]-10, target_RGB[idx]+10):
             flag = False
             break
     return flag 
@@ -211,7 +211,7 @@ def zombie_lookout(image_array, x_size, y_size, threshold):
 
     # Primary zombie ID complete, analyze results
     # We estimate scaling factors for range and angle to zombie
-    print("\nDebugging A/B/G/P zombie scores:", aqua_score, blue_score, green_score, purple_score, "\n")
+    #print("\nDebugging A/B/G/P zombie scores:", aqua_score, blue_score, green_score, purple_score, "\n")
     
     if aqua_score[0] < threshold and blue_score[0] < threshold and \
         green_score[0] < threshold and purple_score[0] < threshold:
@@ -219,7 +219,7 @@ def zombie_lookout(image_array, x_size, y_size, threshold):
         return None
     
     
-    if aqua_score[0] >= blue_score[0] and aqua_score[0] >= green_score[0] and aqua_score[0] >= purple_score[0]:
+    elif aqua_score[0] >= blue_score[0] and aqua_score[0] >= green_score[0] and aqua_score[0] >= purple_score[0]:
         # aqua biggest
         zombie_type = "aqua"
         #zombie_distance = (1-aqua_score[0]/(x_size*y_size))*5.0 # in meters 
@@ -251,7 +251,7 @@ def zombie_lookout(image_array, x_size, y_size, threshold):
     #plt.plot(debug_array_x,debug_array_y, ".")
     #plt.show()    
     
-    print("Zombie type", zombie_type, "at", angle, "deg boresight.")
+    #print("Zombie type", zombie_type, "at", angle, "deg boresight.")
     return zombie_type, angle
 
 
@@ -330,6 +330,8 @@ def berry_lookout(image_array, x_size, y_size, threshold):
         - Pixel threshold for when berries are detected
     Do nothing if no berries above threshold, else return (type, angle(degree), distance) triple 
     """
+    print("Debugging: in berry_lookout mode")
+    
     filtered_array = []   # new list of RGB pixels for non-background objects
     filtered_pos = []     # positions to save x,y information
     for col_idx in range(x_size):
@@ -386,10 +388,12 @@ def berry_lookout(image_array, x_size, y_size, threshold):
         berry_type = "none"
         berry_distance = 1000
         angle = 0
+        print("No berries detected")
     
-    if red_score[0] >= pink_score[0] and red_score[0] >= orange_score[0] and red_score[0] >= yellow_score[0]:
+    elif red_score[0] >= pink_score[0] and red_score[0] >= orange_score[0] and red_score[0] >= yellow_score[0]:
         # red berry closest
         berry_type = "red"
+        print("Debugging: red, red_score[0]", red_score[0], "red_score[1]", red_score[1]) 
         berry_x = red_score[1] / red_score[0]    # float, x-center of mass
         berry_distance = (1-red_score[0]/(x_size*y_size))*5.0 # in meters
         angle = (berry_x - x_size/2)/x_size * 28.5   # angles - estimation from 1 rad FOV!
@@ -443,7 +447,7 @@ def berry_distance_comparison(front_food, right_food, back_food, left_food):
         closest_berry = left_food
         return closest_berry
 
-def berry_angle_calculation(closest_view):
+def berry_angle_calculation(front_food, right_food, back_food, left_food, closest_view):
     """
     Function to calculate berry angle based on four camera lookouts
     Output berry angle (from -180 to 180 deg), for motor action
@@ -637,7 +641,7 @@ def main():
             left_food  = berry_lookout(left_RGB, 128, 64, 1)
 
             closest_view = berry_distance_comparison(front_food, right_food, back_food, left_food)
-            berry_angle = berry_calculation(closest_view)
+            berry_angle = berry_angle_calculation(front_food,right_food,back_food,left_food, closest_view)
 
             """
             LEARNING ALGORITHM:
@@ -653,7 +657,7 @@ def main():
                 init_energy = robot_info[1]
                 
                 while front_food != None: 
-                    base_forward()
+                    base_forwards(wheels)
                     
                 if front_food == None:
                     final_energy = robot_info[1]
