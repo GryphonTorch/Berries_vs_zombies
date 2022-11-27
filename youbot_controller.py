@@ -9,6 +9,11 @@ from youbot_zombie import *
 #define functions here for making decisions and using sensor inputs
 print("Hi, I'm ready!")
 
+frontright_pos = float('inf')
+frontleft_pos = float('inf')
+backleft_pos = float('inf')
+backright_pos = float('inf')
+
 """ -------- Robot motion helper functions --------
 """    
 
@@ -50,16 +55,42 @@ def rotate_degree(wheels, theta):
     multiplies this coefficient to 150. Thus, we are essentially only changing the number of time steps
     turn left or turn right is running (instead of the angle itself since we don't have a gps/gyro).
     """
-    i = 0
-    if 0 <= theta <= 180:
-        ratio = theta/90
-        if i < ratio*150:
-            base_turn_right(wheels)
-    if -180 <= theta < 0:
-        ratio = abs(theta)/90
-        if i < ratio*150:
-            base_turn_left(wheels)
-    i += 1
+    speeds = [-6.28, 6.28, -6.28, 6.28]
+    base_set_wheel_speeds_helper(wheels, speeds)
+    
+    
+    #print("Start turn")
+    #for i in range(500):
+    #   speeds = [1, 10, 1, 10]
+    #   base_set_wheel_speeds_helper(wheels, speeds)
+       
+    #   print("Turning...", i)
+    #   i += 1
+    #print("End turn")
+    
+    #if 0 <= theta <= 180:
+    #   print("Turn right")
+    #   for i in range(150):
+           
+           
+    #       base_backwards(wheels)
+    #       i += 1
+    #else:
+    #   print("Turn left")
+    #   for i in range(150):
+    #       #base_turn_left(wheels)
+    #       base_backwards(wheels)
+    #       i += 1
+    
+    
+#        ratio = theta/90
+#        if i < ratio*150:
+#            base_turn_right(wheels)
+#    if -180 <= theta < 0:
+#        ratio = abs(theta)/90
+#        if i < ratio*150:
+#            base_turn_left(wheels)
+#   i += 1
     return
 
 """
@@ -305,17 +336,17 @@ def random_walk(wheels, choice):
     for a certain number of timesteps
     """
     i = 0
-    rand_time = range(150,250)
+    rand_time = [150,250]
     
     if i <= 100:
         base_forwards(wheels)
         
-    if 100 < i < rand_time:
+    if 100 < i < rand_time[0]:
         if choice == 0:
             base_turn_left(wheels)
         if choice == 1:
             base_turn_right(wheels)
-    if i >= rand_time:
+    if i >= rand_time[1]:
         i = 0
     i += 1
     return
@@ -640,16 +671,40 @@ def main():
             closest_view = berry_distance_comparison(front_food, right_food, back_food, left_food)
             berry_angle = berry_angle_calculation(front_food,right_food,back_food,left_food, closest_view)
 
+            # debugging for turn 
+            desired_turn_angle = 60 # degrees
+            
+            if desired_turn_angle > 0:    
+                # turn right
+                #if actual_turn < desired_turn_angle:
+                base_turn_right(wheels)
+                    #actual_turn += 0.01   # per unit step angle -- need to calibrate
+            else:
+                # turn left
+                #if actual_turn > desired_turn_angle:
+                base_turn_left(wheels)
+                    #actual_turn -= 0.01
+            
+          
+
             """
             #LEARNING ALGORITHM:
             #We create a list of good berries, once one berry gives us a -20 energy, we black list it.
             """
-            
+            """
 
             good_berry_list = ["red", "orange", "pink", "yellow"]
             
             if closest_view[0] in good_berry_list:
-                rotate_degree(wheels, berry_angle)
+                
+                
+                # turn in main()
+                i = 0
+                print("Start turn")
+                base_turn_right(wheels)
+                print("End turn")
+            
+                #
                 init_energy = robot_info[1]
                 
                 #while front_food != None: 
@@ -667,7 +722,7 @@ def main():
             
             """
                 
-        """
+        
         #possible pseudocode for moving forward, then doing a 90 degree left turn
         #if i <100
             #base_forwards() -> can implement in Python with Webots C code (/Zombie world/libraries/youbot_control) as an example or make your own
