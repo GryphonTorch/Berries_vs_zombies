@@ -12,20 +12,6 @@ print("Hi, I'm ready!")
 
 
 
-# INITIALIZE WHEEL POSITIONS
-fr = robot.getDevice("wheel1")
-fl = robot.getDevice("wheel2")
-br = robot.getDevice("wheel3")
-bl = robot.getDevice("wheel4")
-        
-wheels = [fr, fl, br, bl]
-SPEED = 6.28
-
-fr.setPosition(float('inf'))   
-fl.setPosition(float('inf'))
-br.setPosition(float('inf'))
-bl.setPosition(float('inf'))
-
 """ -------- Robot motion helper functions --------
 """    
 
@@ -50,12 +36,12 @@ def base_backwards(wheels):
     return
 
 def base_turn_left(wheels):
-    speeds = [6.28, -6.28, 6.28, -6.28]
+    speeds = [12, -12, 12, -12]
     base_set_wheel_speeds_helper(wheels, speeds)
     return
 
 def base_turn_right(wheels):
-    speeds = [-6.28, 6.28, -6.28, 6.28]
+    speeds = [-12, 12, -12, 12]
     base_set_wheel_speeds_helper(wheels, speeds)
     return
 
@@ -116,6 +102,9 @@ def random_walk(wheels, choice):
     i += 1
     return
 
+
+
+
 #------------------CHANGE CODE ABOVE HERE ONLY--------------------------
 
 def main():
@@ -146,7 +135,19 @@ def main():
     
  
     
-    
+    # INITIALIZE WHEEL POSITIONS
+    fr = robot.getDevice("wheel1")
+    fl = robot.getDevice("wheel2")
+    br = robot.getDevice("wheel3")
+    bl = robot.getDevice("wheel4")
+    wheels = [fr, fl, br, bl]
+
+    fr.setPosition(float('inf'))   
+    fl.setPosition(float('inf'))
+    br.setPosition(float('inf'))
+    bl.setPosition(float('inf'))    
+
+    make_turn = 0   # semaphore
 
     #------------------CHANGE CODE ABOVE HERE ONLY--------------------------
     
@@ -182,6 +183,9 @@ def main():
      #------------------CHANGE CODE BELOW HERE ONLY--------------------------   
         # The following code is called every timestep:
         
+        if make_turn == 1:    
+            base_turn_right(wheels)
+        """
         # debugging for turn 
         desired_turn_angle = 60 # degrees
         i = 0
@@ -194,7 +198,7 @@ def main():
         for j in range(100):
             base_forwards(wheels)
             j += 1
-            
+        """   
         
         #possible pseudocode for moving forward, then doing a 90 degree left turn
         #if i <100

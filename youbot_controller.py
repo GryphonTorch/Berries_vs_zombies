@@ -9,13 +9,7 @@ from youbot_zombie import *
 #define functions here for making decisions and using sensor inputs
 print("Hi, I'm ready!")
 
-frontright_pos = float('inf')
-frontleft_pos = float('inf')
-backleft_pos = float('inf')
-backright_pos = float('inf')
-
-""" -------- Robot motion helper functions --------
-"""    
+""" -------- Robot motion helper functions -------- """    
 
 def base_set_wheel_speeds_helper(wheels, speeds):
     for i in range(4):
@@ -38,62 +32,28 @@ def base_backwards(wheels):
     return
 
 def base_turn_left(wheels):
-    speeds = [6.28, -6.28, 6.28, -6.28]
+    speeds = [10, -1, 10, -1]
     base_set_wheel_speeds_helper(wheels, speeds)
     return
 
 def base_turn_right(wheels):
-    speeds = [-6.28, 6.28, -6.28, 6.28]
+    speeds = [-1, 10, -1, 10]
     base_set_wheel_speeds_helper(wheels, speeds)
-    return
-
-
-def rotate_degree(wheels, theta):
-    """
-    Rotate Function: input THETA tells us the degree from camera vision data. The robot takes 150 timesteps to
-    complete a 90 degree rotation. So, the function calculates the ratio of the angle to 90 degrees, then
-    multiplies this coefficient to 150. Thus, we are essentially only changing the number of time steps
-    turn left or turn right is running (instead of the angle itself since we don't have a gps/gyro).
-    """
-    speeds = [-6.28, 6.28, -6.28, 6.28]
-    base_set_wheel_speeds_helper(wheels, speeds)
-    
-    
-    #print("Start turn")
-    #for i in range(500):
-    #   speeds = [1, 10, 1, 10]
-    #   base_set_wheel_speeds_helper(wheels, speeds)
-       
-    #   print("Turning...", i)
-    #   i += 1
-    #print("End turn")
-    
-    #if 0 <= theta <= 180:
-    #   print("Turn right")
-    #   for i in range(150):
-           
-           
-    #       base_backwards(wheels)
-    #       i += 1
-    #else:
-    #   print("Turn left")
-    #   for i in range(150):
-    #       #base_turn_left(wheels)
-    #       base_backwards(wheels)
-    #       i += 1
-    
-    
-#        ratio = theta/90
-#        if i < ratio*150:
-#            base_turn_right(wheels)
-#    if -180 <= theta < 0:
-#        ratio = abs(theta)/90
-#        if i < ratio*150:
-#            base_turn_left(wheels)
-#   i += 1
     return
 
 """
+def rotate_degree(wheels, theta):
+    
+    #Rotate Function: input THETA tells us the degree from camera vision data. The robot takes 150 timesteps to
+    #complete a 90 degree rotation. So, the function calculates the ratio of the angle to 90 degrees, then
+    #multiplies this coefficient to 150. Thus, we are essentially only changing the number of time steps
+    #turn left or turn right is running (instead of the angle itself since we don't have a gps/gyro).
+    
+    speeds = [-6.28, 6.28, -6.28, 6.28]
+    base_set_wheel_speeds_helper(wheels, speeds)
+    return
+
+
 def waggle():
     # make robot move forward in a zigzag, to cover all bases (blindspots)
 
@@ -286,44 +246,31 @@ def zombie_lookout(image_array, x_size, y_size, threshold):
     return zombie_type, angle
 
 
-def compute_escape(front_lookout, right_lookout, back_lookout, left_lookout):
+def make_escape(front_lookout, right_lookout, back_lookout, left_lookout, wheels):
     """
-    Function to calculate escape TURN angle based on four camera lookouts
+    Function to escape based on four camera lookouts
     Each input lookout is (zombie type, angle) tuple so we can tailor according
     to color if desired. 
-    Output escape angle (from -180 to 180 deg), for motor action
+    Does not return anything, just moves the wheels directly
     i.e. zero degrees front lookout: facing head-on, so go BACK
          zero degrees right lookout: coming from the right, go LEFT
-         
     """
     
     # for now treat all zombies uniformly
-    escape_angle = 0
-    if front_lookout != None:
-        escape_angle += front_lookout[1] + 180
-    if right_lookout != None:
-        escape_angle += right_lookout[1] + 270
-    if back_lookout != None:
-        escape_angle += back_lookout[1]   # see math
-    if left_lookout != None:
-        escape_angle += left_lookout[1] + 90
+    zombie_sum = 0    # vector sum of incident zombie directions
+    if front_lookout != None or right_lookout != None or left_lookout != None:
+        base_move_backwards(wheels)    # keeping it simple
+    elif back_lookout != None:
+        base_move_forwards(wheels)
+    return
     
-    while escape_angle >= 360:
-        escape_angle -= 360
-    
-    if escape_angle > 180:
-        return 360-escape_angle    # turn left/anticlockwise
-    else:
-        return escape_angle        # turn clockwise
-
 
 """
 EXPLORE AND EAT BERRIES FUNCTION
 
 random_walk - when no berries are around, create random trajectory
-berry_lookout - vision-based berry function
-berry_distance_calculation - calculate closest berry
-berry_angle - calculate angle of closest berry
+berry_lookout - vision-based berry function, returns ("color", angle, distance) 
+get_berry - moves robot towards berry
 """
 
 
@@ -334,6 +281,13 @@ def random_walk(wheels, choice):
     
     INPUT: Choice - random choice between 0 and 1 to tell the robot to turn left or right
     for a certain number of timesteps
+    """
+    if choice == 0:
+        base_turn_left(wheels)
+    elif choice == 1:
+        base_turn_right(wheels)
+    else:
+        base_forwards(wheels)
     """
     i = 0
     rand_time = [150,250]
@@ -349,6 +303,8 @@ def random_walk(wheels, choice):
     if i >= rand_time[1]:
         i = 0
     i += 1
+    """
+    
     return
 
 def berry_lookout(image_array, x_size, y_size, threshold):
@@ -412,11 +368,11 @@ def berry_lookout(image_array, x_size, y_size, threshold):
 
     # Primary berry color ID complete, analyze results
     # We estimate scaling factors for range and angle to zombie
-    print("\nDebugging R/P/O/Y berry scores:", red_score, pink_score, orange_score, yellow_score, "\n")
+    #print("\nDebugging R/P/O/Y berry scores:", red_score, pink_score, orange_score, yellow_score, "\n")
     
     if red_score[0] < threshold and pink_score[0] < threshold and \
         orange_score[0] < threshold and yellow_score[0] < threshold:
-        berry_type = "none"
+        berry_type = None     # default type
         berry_distance = 1000
         angle = 0
         #print("No berries detected")
@@ -450,50 +406,51 @@ def berry_lookout(image_array, x_size, y_size, threshold):
         berry_distance = (1-yellow_score[0]/(x_size*y_size))*5.0 # in meters
         angle = (berry_x - x_size/2)/x_size * 28.5   # angles - estimation from 1 rad FOV!
        
-    # debug 
-    #plt.plot(debug_array_x,debug_array_y, ".")
-    #plt.show()    
-    
-    #print("Berry type", berry_type, "at", angle, "deg boresight, at", berry_distance, "meters")
+    #print("Berry type", berry_type, "at", angle, "deg, at", berry_distance, "meters")
     return berry_type, angle, berry_distance
 
 
-def berry_distance_comparison(front_food, right_food, back_food, left_food):
+def get_berry(front_food, right_food, back_food, left_food, good_berry_list, wheels):
     """
-    Returns closest berry in distance (color, angle, distance) tuple
+    Simplified berry eat algorithm, with a bias for berry ahead
+    Returns color of the berry it has picked, for energy check later 
     """
-    if front_food[2] <= right_food[2]  and front_food[2]  <= back_food[2]  and front_food[2]  <= left_food[2] :
-        return front_food
-    elif right_food[2]  <= back_food[2]  and right_food[2]  <= left_food[2] :
-        return right_food
-    elif back_food[2]  <= left_food[2] :
-        return back_food
+    print("In get_berry...")
+    if front_food[0] != None and front_food[0] in good_berry_list:
+        if front_food[1] > 1:
+            # Rotate left; allow window 
+            base_turn_left(wheels)
+            print("Turn left")
+        elif front_food[1] < -1:
+            base_turn_right(wheels)
+            print("Turn right")
+        else:
+            base_forwards(wheels)
+            print("Debugging: go forward")
+            
+        return front_food[0]    # return color
+    elif right_food[0] != None and (right_food[0] in good_berry_list):
+        print("Debugging: see right")
+        if left_food[0] != None:
+            if right_food[1]<left_food[0]: 
+                # go after the right berry 
+                base_turn_right(wheels)
+                return right_food[0]
+            else:
+                pass
+        else:
+            base_turn_right(wheels)
+            return right_food[0]   
+    elif left_food[0] != None and left_food[0] in good_berry_list:
+        print("Debugging: see left")
+        # before eating left berry, still check its desirability
+        base_turn_left(wheels)
+        return left_food[0]
     else:
-        return left_food
-
-def berry_angle_calculation(front_food, right_food, back_food, left_food, closest_view):
-    """
-    Function to calculate berry angle based on four camera lookouts
-    Output berry angle (from -180 to 180 deg), for motor action
-    Modified based on camera input
-    """
-    
-    berry_angle = 0
-    if closest_view == front_food:
-        berry_angle = front_food[1]
-    if closest_view == right_food:
-        berry_angle = right_food[1] + 90
-    if closest_view == back_food:
-        berry_angle = back_food[1] + 180  # see math
-    if closest_view == left_food:
-        berry_angle = left_food[1] + 270
-    
-    if berry_angle > 180:
-        return 360 - berry_angle    # turn left/anticlockwise
-    else:
-        return berry_angle        # turn clockwise
-
-
+        # Keep looking, move wheels later randomly    
+        print("Debugging: no see")   
+        return 0 # None
+ 
 
 #------------------CHANGE CODE ABOVE HERE ONLY--------------------------
 
@@ -572,21 +529,16 @@ def main():
     fr = robot.getDevice("wheel1")
     fl = robot.getDevice("wheel2")
     br = robot.getDevice("wheel3")
-    bl = robot.getDevice("wheel4")
-        
+    bl = robot.getDevice("wheel4") 
     wheels = [fr, fl, br, bl]
-    SPEED = 6.28
 
     fr.setPosition(float('inf'))   
-    fr.setVelocity(0)
     fl.setPosition(float('inf'))
-    fl.setVelocity(0)
     br.setPosition(float('inf'))
-    br.setVelocity(0)
     bl.setPosition(float('inf'))
-    bl.setVelocity(0)
     
-
+    good_berry_list = ["red", "orange", "pink", "yellow"]
+    
     #------------------CHANGE CODE ABOVE HERE ONLY--------------------------
     
     
@@ -619,130 +571,56 @@ def main():
         timer += 1
         
      #------------------CHANGE CODE BELOW HERE ONLY--------------------------   
-        # The following code is called every timestep:
+     # The following code is called every timestep:
            
-        # Read from four cameras 
-        
+        # Observe from four cameras 
         camera1.saveImage('cam1front.png',100)  # for testing purposes, best quality PNG save
         camera6.saveImage('cam6right.png',100) 
         camera5.saveImage('cam5back.png',100) 
         camera7.saveImage('cam7left.png',100)
-        
         front_RGB = make_image_array(camera1.getImageArray())   # to get RGB order
         right_RGB = make_image_array(camera6.getImageArray()) 
         back_RGB  = make_image_array(camera5.getImageArray()) 
         left_RGB  = make_image_array(camera7.getImageArray()) 
         
-        # Compute lookout data types; take care of threshold
+        # Compute zombie lookout data types; pick good thresholds
         front_lookout = zombie_lookout(front_RGB, 128, 64, 5) # x, y image size from specs
         right_lookout = zombie_lookout(right_RGB, 128, 64, 5)
         back_lookout  = zombie_lookout(back_RGB, 128, 64, 5)
         left_lookout  = zombie_lookout(left_RGB, 128, 64, 5)
 
-        # Compute escape angle     
-        escape_angle = compute_escape(front_lookout, right_lookout, back_lookout, left_lookout)
-
-        # Feed escape_angle to motor
-        rotate_degree(wheels, escape_angle)
-
-        if (front_lookout != None or right_lookout != None or back_lookout != None or left_lookout != None):
-            j = 0
-            for j in range(100):
-                base_forwards(wheels)
+        # Escape from zombie if needed, else find berries
+        if front_lookout != None or right_lookout != None or back_lookout != None or left_lookout != None:  
+            print("Zombie spotted! Run...")
+            make_escape(front_lookout, right_lookout, back_lookout, left_lookout, wheels)
         else:
-        
-            print("No zombie detected")
-            
+            print("No zombie spotted this turn")
 
-            """
-            #BERRY SEARCH PORTION: COMPUTING FOR EACH TIMESTEP
-            #- Getting closest berry at each field of view
-            #- Getting closest berry among all four cameras
-            #- Calculating angle of that single berry
-            """
-                    
             # Compute type and angle of food
             front_food = berry_lookout(front_RGB, 128, 64, 1) # x, y image size from specs
             right_food = berry_lookout(right_RGB, 128, 64, 1)
             back_food  = berry_lookout(back_RGB, 128, 64, 1)
             left_food  = berry_lookout(left_RGB, 128, 64, 1)
-
             
-            closest_view = berry_distance_comparison(front_food, right_food, back_food, left_food)
-            berry_angle = berry_angle_calculation(front_food,right_food,back_food,left_food, closest_view)
-
-            # debugging for turn 
-            desired_turn_angle = 60 # degrees
-            
-            if desired_turn_angle > 0:    
-                # turn right
-                #if actual_turn < desired_turn_angle:
-                base_turn_right(wheels)
-                    #actual_turn += 0.01   # per unit step angle -- need to calibrate
+            # Get the berry; move, and take note of color string in want_to_eat
+            init_energy = robot_info[1]
+            want_to_eat = get_berry(front_food, right_food, back_food, left_food, good_berry_list, wheels)
+            print("want_to_eat:", want_to_eat)
+             
+            # Learning: create list of good berries; any that gives -20 energy gets blacklisted
+            final_energy = robot_info[1]
+            if (final_energy - init_energy) < -19:
+                good_berry_list.remove(want_to_eat)
+                print("Ate bad berry :", want_to_eat) 
             else:
-                # turn left
-                #if actual_turn > desired_turn_angle:
-                base_turn_left(wheels)
-                    #actual_turn -= 0.01
-            
-          
-
-            """
-            #LEARNING ALGORITHM:
-            #We create a list of good berries, once one berry gives us a -20 energy, we black list it.
-            """
-            """
-
-            good_berry_list = ["red", "orange", "pink", "yellow"]
-            
-            if closest_view[0] in good_berry_list:
-                
-                
-                # turn in main()
-                i = 0
-                print("Start turn")
-                base_turn_right(wheels)
-                print("End turn")
-            
-                #
-                init_energy = robot_info[1]
-                
-                #while front_food != None: 
-                #    base_forwards(wheels)
-                    
-                #if front_food == None:
-                #    final_energy = robot_info[1]
-                    
-                #if (final_energy - init_energy) == -20:
-                #    good_berry_list.remove(closest_view[0])
-
-            else:
-                choice = random.choice([0,1])
-                random_walk(wheels, choice)
-            
-            """
-                
+                if want_to_eat == 0:
+                    random_walk(wheels, random.choice([0,1]))
+                    print("No berry spotted, random wander")
         
-        #possible pseudocode for moving forward, then doing a 90 degree left turn
-        #if i <100
-            #base_forwards() -> can implement in Python with Webots C code (/Zombie world/libraries/youbot_control) as an example or make your own
-        
-        #if == 100 
-            # base_reset() 
-            # base_turn_left()  
-            #it takes about 150 timesteps for the robot to complete the turn
-                 
-        #if i==300
-            # i = 0
-        
-        #i+=1
-        
-        #make decisions using inputs if you choose to do so
-         
-                
+        print(" ")   # for clarity in printout
         #------------------CHANGE CODE ABOVE HERE ONLY--------------------------
         
-        
+    
     return 0   
 
 
