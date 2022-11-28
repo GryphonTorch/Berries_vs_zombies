@@ -11,54 +11,12 @@ print("Hi, I'm ready!")
 
 """ -------- Robot motion helper functions -------- """    
 
-def base_set_wheel_speeds_helper(wheels, speeds):
-    for i in range(4):
-        wheels[i].setVelocity(speeds[i])
-    return
-
-def base_reset(wheels):
-    speeds = [0.0, 0.0, 0.0, 0.0]
-    base_set_wheel_speeds_helper(wheels, speeds)
-    return
-
-def base_forwards(wheels):
-    speeds = [6.28, 6.28, 6.28, 6.28]
-    base_set_wheel_speeds_helper(wheels, speeds)
-    return
-
-def base_backwards(wheels):
-    speeds = [-6.28, -6.28, -6.28, -6.28]
-    base_set_wheel_speeds_helper(wheels, speeds)
-    return
-
-def base_turn_left(wheels):
-    speeds = [10, -1, 10, -1]
-    base_set_wheel_speeds_helper(wheels, speeds)
-    return
-
-def base_turn_right(wheels):
-    speeds = [-1, 10, -1, 10]
-    base_set_wheel_speeds_helper(wheels, speeds)
-    return
-
-"""
-def rotate_degree(wheels, theta):
-    
-    #Rotate Function: input THETA tells us the degree from camera vision data. The robot takes 150 timesteps to
-    #complete a 90 degree rotation. So, the function calculates the ratio of the angle to 90 degrees, then
-    #multiplies this coefficient to 150. Thus, we are essentially only changing the number of time steps
-    #turn left or turn right is running (instead of the angle itself since we don't have a gps/gyro).
-    
-    speeds = [-6.28, 6.28, -6.28, 6.28]
-    base_set_wheel_speeds_helper(wheels, speeds)
-    return
-
 
 def waggle():
-    # make robot move forward in a zigzag, to cover all bases (blindspots)
+    # cover blindspots
 
     return
-"""
+
 
 """ -------- Camera Vision Helper functions --------
     Based on standalone testing of camera images, we obtained representative
@@ -246,12 +204,12 @@ def zombie_lookout(image_array, x_size, y_size, threshold):
     return zombie_type, angle
 
 
-def make_escape(front_lookout, right_lookout, back_lookout, left_lookout, wheels):
+def make_escape(front_lookout, right_lookout, back_lookout, left_lookout):
     """
     Function to escape based on four camera lookouts
     Each input lookout is (zombie type, angle) tuple so we can tailor according
     to color if desired. 
-    Does not return anything, just moves the wheels directly
+    Returns turn_counter
     i.e. zero degrees front lookout: facing head-on, so go BACK
          zero degrees right lookout: coming from the right, go LEFT
     """
@@ -259,10 +217,10 @@ def make_escape(front_lookout, right_lookout, back_lookout, left_lookout, wheels
     # for now treat all zombies uniformly
     zombie_sum = 0    # vector sum of incident zombie directions
     if front_lookout != None or right_lookout != None or left_lookout != None:
-        base_move_backwards(wheels)    # keeping it simple
+        return 120    # keeping it (too?) simple
     elif back_lookout != None:
-        base_move_forwards(wheels)
-    return
+        return -1
+    
     
 
 """
@@ -283,11 +241,11 @@ def random_walk(wheels, choice):
     for a certain number of timesteps
     """
     if choice == 0:
-        base_turn_left(wheels)
+        return 1
     elif choice == 1:
-        base_turn_right(wheels)
+        return -1
     else:
-        base_forwards(wheels)
+        return 0
     """
     i = 0
     rand_time = [150,250]
@@ -305,7 +263,6 @@ def random_walk(wheels, choice):
     i += 1
     """
     
-    return
 
 def berry_lookout(image_array, x_size, y_size, threshold):
     """
@@ -410,47 +367,41 @@ def berry_lookout(image_array, x_size, y_size, threshold):
     return berry_type, angle, berry_distance
 
 
-def get_berry(front_food, right_food, back_food, left_food, good_berry_list, wheels):
+def get_berry(front_food, right_food, back_food, left_food, good_berry_list):
     """
     Simplified berry eat algorithm, with a bias for berry ahead
     Returns color of the berry it has picked, for energy check later 
     """
-    print("In get_berry...")
+    #print("In get_berry...")
     if front_food[0] != None and front_food[0] in good_berry_list:
         if front_food[1] > 1:
-            # Rotate left; allow window 
-            base_turn_left(wheels)
-            print("Turn left")
+            # Account for window of alignment
+            print("Food in front, slightly right")
+            return -1, front_food[0]    
+            # up to 1 degree accuracy, don't want to deal with rounding/numpy
         elif front_food[1] < -1:
-            base_turn_right(wheels)
-            print("Turn right")
+            print("Food in front, slightly left")
+            return 1, front_food[0]
         else:
-            base_forwards(wheels)
-            print("Debugging: go forward")
-            
-        return front_food[0]    # return color
+            print("Food straight ahead")
+            return 0, front_food[0]
+    else:
+        return None
+    """        
     elif right_food[0] != None and (right_food[0] in good_berry_list):
         print("Debugging: see right")
-        if left_food[0] != None:
-            if right_food[1]<left_food[0]: 
-                # go after the right berry 
-                base_turn_right(wheels)
-                return right_food[0]
-            else:
-                pass
-        else:
-            base_turn_right(wheels)
-            return right_food[0]   
+        # go after the right berry
+        return -30, right_food[0]
+ 
     elif left_food[0] != None and left_food[0] in good_berry_list:
         print("Debugging: see left")
         # before eating left berry, still check its desirability
-        base_turn_left(wheels)
-        return left_food[0]
+        return 30, left_food[0]
     else:
         # Keep looking, move wheels later randomly    
         print("Debugging: no see")   
-        return 0 # None
- 
+        return 10, "none" # None
+    """
 
 #------------------CHANGE CODE ABOVE HERE ONLY--------------------------
 
@@ -538,6 +489,7 @@ def main():
     bl.setPosition(float('inf'))
     
     good_berry_list = ["red", "orange", "pink", "yellow"]
+    turn_counter = 120   # initialize 
     
     #------------------CHANGE CODE ABOVE HERE ONLY--------------------------
     
@@ -592,7 +544,9 @@ def main():
         # Escape from zombie if needed, else find berries
         if front_lookout != None or right_lookout != None or back_lookout != None or left_lookout != None:  
             print("Zombie spotted! Run...")
-            make_escape(front_lookout, right_lookout, back_lookout, left_lookout, wheels)
+            # either set turn_counter to 120 (forward) or -1 (backward)
+            turn_counter = make_escape(front_lookout, right_lookout, back_lookout, left_lookout)
+        
         else:
             print("No zombie spotted this turn")
 
@@ -604,8 +558,12 @@ def main():
             
             # Get the berry; move, and take note of color string in want_to_eat
             init_energy = robot_info[1]
-            want_to_eat = get_berry(front_food, right_food, back_food, left_food, good_berry_list, wheels)
-            print("want_to_eat:", want_to_eat)
+            berries = get_berry(front_food, right_food, back_food, left_food, good_berry_list)
+            want_to_eat = 0   # initialize to none
+            if berries != None:
+                turn_counter += berries[0]     # note += instead of =; lets us transition between cameras  
+                want_to_eat = berries[1]
+                print("want_to_eat:", want_to_eat)
              
             # Learning: create list of good berries; any that gives -20 energy gets blacklisted
             final_energy = robot_info[1]
@@ -614,8 +572,36 @@ def main():
                 print("Ate bad berry :", want_to_eat) 
             else:
                 if want_to_eat == 0:
-                    random_walk(wheels, random.choice([0,1]))
+                    turn_counter += random_walk(wheels, random.choice([0,1]))
                     print("No berry spotted, random wander")
+        
+        
+        if turn_counter < 120:
+            fr.setVelocity(-6.5)
+            br.setVelocity(-6.5)
+            fl.setVelocity(6.5)
+            bl.setVelocity(6.5)
+            print("Turn right", turn_counter)
+            turn_counter += 1
+        elif turn_counter == 120:   # approx degree
+            fr.setVelocity(5)
+            br.setVelocity(5)
+            fl.setVelocity(5)
+            bl.setVelocity(5)
+            print("Forward!", turn_counter)
+        elif turn_counter > 120:
+            fr.setVelocity(6.5)
+            br.setVelocity(6.5)
+            fl.setVelocity(-6.5)
+            bl.setVelocity(-6.5)
+            print("Turn left", turn_counter)
+            turn_counter -= 1
+        elif turn_counter == -1:
+            fr.setVelocity(-6.5)
+            br.setVelocity(-6.5)
+            fl.setVelocity(-6.5)
+            bl.setVelocity(-6.5)
+            print("Going back!")
         
         print(" ")   # for clarity in printout
         #------------------CHANGE CODE ABOVE HERE ONLY--------------------------
