@@ -195,13 +195,10 @@ def zombie_lookout(image_array, x_size, y_size, threshold):
 def make_escape(front_lookout, right_lookout, back_lookout, left_lookout):
     """
     Function to escape based on four camera lookouts
-    Each input lookout is (zombie type, angle) tuple so we can tailor according
-    to color if desired. 
-    Returns turn_counter
-    i.e. zero degrees front lookout: facing head-on, so go BACK
-         zero degrees right lookout: coming from the right, go LEFT
+    Each input lookout is (zombie type, angle) tuple 
+      For now treat all zombie colors the same
     """
-    if back_lookout != None:   # for now treat all zombies uniformly
+    if back_lookout != None:   
         return 120
     elif front_lookout != None:
         if right_lookout != None:
@@ -403,7 +400,7 @@ def avoid_stump(image_array, x_size, y_size, threshold):
             stump_score += 1.0   
     if stump_score > threshold: 
         print("Stump detected")
-        return -5
+        return -10
     else: 
         print("Stump not close enough")
         return None
@@ -430,7 +427,7 @@ def avoid_edge_of_world(image_array, x_size, y_size, threshold):
             ground_score += 1.0  # increment count
     if ground_score < threshold: 
         print("No Ground detected")
-        return -10
+        return -40
     else: 
         return None 
     
@@ -562,7 +559,8 @@ def main():
         
      #------------------CHANGE CODE BELOW HERE ONLY--------------------------   
      # The following code is called every timestep:
-           
+         
+        # sense and decide every 10 timesteps   
         if timer%10 == 0:
             # Observe from four cameras 
             camera1.saveImage('cam1front.png',100)  # for testing purposes, best quality PNG save
@@ -580,19 +578,25 @@ def main():
             back_lookout  = zombie_lookout(back_RGB, 128, 64, 75)
             left_lookout  = zombie_lookout(left_RGB, 128, 64, 75)
 
-            # Escape from zombie if needed, else find berries
-            if front_lookout != None or right_lookout != None or back_lookout != None or left_lookout != None:  
+            # Edge detect has highest priority
+            edge = avoid_edge_of_world(front_RGB,128, 64, 500)    # image array, x_size, y_size, threshold input
+            stump = avoid_stump(front_RGB, 128, 64, 4000)   
+            init_energy = robot_info[1]
+            if edge != None:
+                turn_counter += edge
+                print("I'm on top of the world!") 
+            # Get robot to turn if there is a stump
+            elif stump != None:
+                turn_counter += stump
+                print("Stump detected")
+                # TODO: add swing arm function
+            # Escape from zombie if needed, else find berries 
+            elif front_lookout != None or right_lookout != None or back_lookout != None or left_lookout != None:  
                 print("Zombie spotted! Run...")
                 # either set turn_counter to 120 (forward) or -1 (backward)
                 turn_counter = make_escape(front_lookout, right_lookout, back_lookout, left_lookout)
-            
             else:
-                print("No zombie spotted this turn")
-            
-                # Look for berries every 20 timesteps; 
-                # essentially locks turn_counter as a shared resource (semaphore)
-                init_energy = robot_info[1]
-                print("I look around")
+                print("No zombie spotted this turn.. I'll look around.")
                 # Compute type and angle of food
                 front_food = berry_lookout(front_RGB, 128, 64, 1) # x, y image size from specs
                 right_food = berry_lookout(right_RGB, 128, 64, 1)
@@ -608,20 +612,7 @@ def main():
                 else:
                     want_to_eat = 0   # initialize to none
                 
-                stump = avoid_stump(front_RGB, 128, 64, 75)   # image array, x_size, y_size, threshold input
                 
-                # Get robot to turn if there is a stump
-                if stump != None:
-                    turn_counter += stump
-                    print("Stump detected")
-                    # add swing arm function
-                
-                edge = avoid_edge_of_world(front_RGB,128, 64, 2)
-                
-                if edge != None:
-                    turn_counter += edge
-                    print("No ground detected") 
-          
             # Learning: create list of good berries; any that gives -20 energy gets blacklisted
             final_energy = robot_info[1]
             if (final_energy - init_energy) < -19:
@@ -634,34 +625,33 @@ def main():
                     turn_counter = 110   # induce right turn
                     print("No berry spotted, turn right")
         
-            
-        print("Turn counter:", turn_counter)
+        # keep moving every timestep    
         if (turn_counter < 120) and (turn_counter > 0):
             fr.setVelocity(-6.5)
             br.setVelocity(-6.5)
             fl.setVelocity(-2.5)
             bl.setVelocity(-2.5)    # turn backwards in case of stump
-            print("Turn right", turn_counter)
+            print("Turn right. Turn counter:", turn_counter)
             turn_counter += 1
         elif turn_counter == 120:   # approx degree
             fr.setVelocity(5)
             br.setVelocity(5)
             fl.setVelocity(5)
             bl.setVelocity(5)
-            print("Forward!", turn_counter)
+            print("Forward! Turn counter:", turn_counter)
         elif turn_counter > 120:
             fr.setVelocity(-2.5)
             br.setVelocity(-2.5)
             fl.setVelocity(-6.5)
             bl.setVelocity(-6.5)
-            print("Turn left", turn_counter)
+            print("Turn left. Turn counter:", turn_counter)
             turn_counter -= 1
         elif turn_counter < 0:
             fr.setVelocity(-6.5)
             br.setVelocity(-6.5)
             fl.setVelocity(-6.5)
             bl.setVelocity(-6.5)
-            print("Going back!")
+            print("Going back! Turn counter:", turn_counter)
         
         print(" ")   # for clarity in printout
         #------------------CHANGE CODE ABOVE HERE ONLY--------------------------
