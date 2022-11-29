@@ -415,8 +415,10 @@ def get_berry(front_food, right_food, back_food, left_food, good_berry_list):
         return 10, "none" # None
     """
 
-def avoid_stump(front_food, threshold):
-    
+def avoid_stump(image_array, x_size, y_size, threshold):
+    """
+    Correction function when robot hits stump
+    """
     filtered_array = []   # new list of RGB pixels for non-background objects
     filtered_pos = []     # positions to save x,y information
     for col_idx in range(x_size):
@@ -447,7 +449,7 @@ def avoid_stump(front_food, threshold):
         return None
 
 
-def avoid_edge_of_world(front_food, threshold):
+def avoid_edge_of_world(image_array, x_size, y_size, threshold):
     filtered_array = []   # new list of RGB pixels for non-background objects
     filtered_pos = []     # positions to save x,y information
     for col_idx in range(x_size):
@@ -644,7 +646,7 @@ def main():
                 else:
                     want_to_eat = 0   # initialize to none
                 
-                stump = avoid_stump(front_food, 75)
+                stump = avoid_stump(front_RGB, 128, 64, 75)   # image array, x_size, y_size, threshold input
                 
                 # Get robot to turn if there is a stump
                 if stump != None:
@@ -652,7 +654,7 @@ def main():
                     print("Stump detected")
                     # add swing arm function
                 
-                edge = avoid_edge_of_world(front_food, 2)
+                edge = avoid_edge_of_world(front_RGB,128, 64, 2)
                 
                 if edge != None:
                     turn_counter += edge
