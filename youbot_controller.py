@@ -6,24 +6,8 @@ from controller import Supervisor
 from youbot_zombie import *
    
 #------------------CHANGE CODE BELOW HERE ONLY--------------------------
-#define functions here for making decisions and using sensor inputs
+# define functions here for making decisions and using sensor inputs
 print("Hi, I'm ready!")
-
-""" -------- Robot motion helper functions -------- """    
-
-
-def waggle():
-    # cover blindspots
-
-    return
-
-
-""" -------- Camera Vision Helper functions --------
-    Based on standalone testing of camera images, we obtained representative
-    R, G, B pixel values for various zombies, berries, and terrain features. This allows
-    the robot to filter away the background and focus on possible zombie threats
-    and berries in the field of vision. 
-"""
 
 # Dictionary of items of interest in RGB order, obtained from testing
 visual_dict = {"Aqua_bright":(37, 221, 194), 
@@ -52,6 +36,15 @@ visual_dict = {"Aqua_bright":(37, 221, 194),
                }
 
 
+""" ------------------ 1/3 Camera Vision Helper functions --------------------
+    Based on standalone testing of camera images, we obtained representative
+    R, G, B pixel values for various zombies, berries, and terrain features. 
+    This allows the robot to filter away the background and focus on possible 
+    zombie threats and berries in the field of vision. 
+    --------------------------------------------------------------------------
+"""
+
+
 def make_image_array(wb_cam_output):
     """
     Function to get [px11, px12, px13...] array from Webot camera output
@@ -76,7 +69,6 @@ def make_image_array(wb_cam_output):
     return output
 
 
-
 def is_pixel_match(pixel_RGB, target_RGB):
     """
     Helper function. Input: pixel RGB is tuple of three values
@@ -91,12 +83,14 @@ def is_pixel_match(pixel_RGB, target_RGB):
             break
     return flag 
 
-"""
-ESCAPE ZOMBIE FUNCTIONS
 
-Zombie lookout - vision-based zombie alert function
-Zombie escape - calculate best angle of escape based on four camera lookout inputs
+""" ---------------------- 2/3 Zombie escape functions -----------------------
+    Based on the camera image array, detect zombies based on
+    color RGB values. make_escape to forward or turn left/right. 
+    Zombie lookout - vision-based zombie alert function
+    --------------------------------------------------------------------------
 """
+
 
 def zombie_lookout(image_array, x_size, y_size, threshold):
     """
@@ -124,7 +118,6 @@ def zombie_lookout(image_array, x_size, y_size, threshold):
                         filtered_array.append(pix_RGB)
                         filtered_pos.append((col_idx, row_idx))  # note order!
 
-
     # Find the color via counting scores
     #print("Debugging filtered length:",len(filtered_array))
     aqua_score = [0,0,0]  # pixel count, Sum of x (col_idx), Sum of y (row_idx)
@@ -144,12 +137,10 @@ def zombie_lookout(image_array, x_size, y_size, threshold):
             blue_score[1] += filtered_pos[idx][0] # col_idx
             blue_score[2] += filtered_pos[idx][1] # row_idx
             
-            
         if (is_pixel_match(filtered_array[idx],visual_dict["Green_bright"]) or is_pixel_match(filtered_array[idx], visual_dict["Green_shadow"])):
             green_score[0] += 1.0  # increment count
             green_score[1] += filtered_pos[idx][0] # col_idx
             green_score[2] += filtered_pos[idx][1] # row_idx
-            
             
         if (is_pixel_match(filtered_array[idx],visual_dict["Purple_bright"]) or is_pixel_match(filtered_array[idx], visual_dict["Purple_shadow"])):
             purple_score[0] += 1.0  # increment count
@@ -166,7 +157,6 @@ def zombie_lookout(image_array, x_size, y_size, threshold):
         green_score[0] < threshold and purple_score[0] < threshold:
         # No zombie nearby; use a threshold instead of 0
         return None
-    
     
     elif aqua_score[0] >= blue_score[0] and aqua_score[0] >= green_score[0] and aqua_score[0] >= purple_score[0]:
         # aqua biggest
@@ -196,10 +186,8 @@ def zombie_lookout(image_array, x_size, y_size, threshold):
         zombie_x = purple_score[1] / purple_score[0] # float, x-center of mass
         angle = (zombie_x - x_size/2)/x_size * 28.5    # angles - estimation from 1 rad FOV!
        
-    # debug 
-    #plt.plot(debug_array_x,debug_array_y, ".")
+    #plt.plot(debug_array_x,debug_array_y, ".")   # for debugging
     #plt.show()    
-    
     #print("Zombie type", zombie_type, "at", angle, "deg boresight.")
     return zombie_type, angle
 
@@ -213,10 +201,7 @@ def make_escape(front_lookout, right_lookout, back_lookout, left_lookout):
     i.e. zero degrees front lookout: facing head-on, so go BACK
          zero degrees right lookout: coming from the right, go LEFT
     """
-    
-    # for now treat all zombies uniformly
-    zombie_sum = 0    # vector sum of incident zombie directions
-    if back_lookout != None:
+    if back_lookout != None:   # for now treat all zombies uniformly
         return 120
     elif front_lookout != None:
         if right_lookout != None:
@@ -228,19 +213,18 @@ def make_escape(front_lookout, right_lookout, back_lookout, left_lookout):
     else:
         return 118
    
-    
 
+""" ------------------ 3/3 Berry explore and eat functions -------------------
+    random_walk - when no berries are around, create random trajectory
+    berry_lookout - vision-based berry function, returns ("color", angle, distance) 
+    get_berry - moves robot towards berry
+    avoid_stump - after seeing stump, swing arm, then do a 90 degree turn.
+    avoid_edge_of_world - to not get stuck at the corner of the room
+    --------------------------------------------------------------------------
 """
-EXPLORE AND EAT BERRIES FUNCTION
-
-random_walk - when no berries are around, create random trajectory
-berry_lookout - vision-based berry function, returns ("color", angle, distance) 
-get_berry - moves robot towards berry
-avoid_stump - after seeing stump, swing arm, then do a 90 degree turn.
-"""
 
 
-def random_walk(wheels, choice):
+def random_walk(choice):
     """
     Random walk function: moves forward for 100 timesteps, then rotates left or right
     for between 50-150 timesteps (a randomized choice). This serves as the explore function for the robot.
@@ -254,28 +238,11 @@ def random_walk(wheels, choice):
         return -30   # to turn for 20 steps
     else:
         return 0     # go ahead for 20 steps
-    """  
-    i = 0
-    rand_time = [150,250]
     
-    if i <= 100:
-        base_forwards(wheels)
-        
-    if 100 < i < rand_time[0]:
-        if choice == 0:
-            base_turn_left(wheels)
-        if choice == 1:
-            base_turn_right(wheels)
-    if i >= rand_time[1]:
-        i = 0
-    i += 1
-    """
     
-
 def berry_lookout(image_array, x_size, y_size, threshold):
     """
-    Adapted from Yu Jun's Comp Vision for Zombie Lookout function
-    Main vision-based berry function
+    Main vision-based berry function (based off zombie detection method)
     Inputs:
         - Array
         - Image dimensions
@@ -295,7 +262,6 @@ def berry_lookout(image_array, x_size, y_size, threshold):
                     if(is_pixel_match(pix_RGB, visual_dict["Earth"]) == False): 
                         filtered_array.append(pix_RGB)
                         filtered_pos.append((col_idx, row_idx))  # note order!
-
 
     # Find the color via counting scores
     #print("Debugging filtered length:",len(filtered_array))
@@ -317,12 +283,10 @@ def berry_lookout(image_array, x_size, y_size, threshold):
             pink_score[1] += filtered_pos[idx][0] # col_idx
             pink_score[2] += filtered_pos[idx][1] # row_idx
             
-            
         if (is_pixel_match(filtered_array[idx],visual_dict["Orange_bright"]) or is_pixel_match(filtered_array[idx], visual_dict["Orange_shadow"])):
             orange_score[0] += 1.0  # increment count
             orange_score[1] += filtered_pos[idx][0] # col_idx
             orange_score[2] += filtered_pos[idx][1] # row_idx
-            
             
         if (is_pixel_match(filtered_array[idx],visual_dict["Yellow_bright"]) or is_pixel_match(filtered_array[idx], visual_dict["Yellow_shadow"])):
             yellow_score[0] += 1.0  # increment count
@@ -415,6 +379,7 @@ def get_berry(front_food, right_food, back_food, left_food, good_berry_list):
         return 10, "none" # None
     """
 
+
 def avoid_stump(image_array, x_size, y_size, threshold):
     """
     Correction function when robot hits stump
@@ -431,19 +396,14 @@ def avoid_stump(image_array, x_size, y_size, threshold):
                         filtered_array.append(pix_RGB)
                         filtered_pos.append((col_idx, row_idx))  # note order!
 
-
-    # Find the color via counting scores
-    #print("Debugging filtered length:",len(filtered_array))
+    # Count pixels that are stumps
     stump_score = 0  # pixel count
-    
     for idx in range(len(filtered_array)):
         if (is_pixel_match(filtered_array[idx],visual_dict["Stump_bright"]) or is_pixel_match(filtered_array[idx], visual_dict["Stump_shadow"])):
-            stump_score += 1.0  # increment count
-    
+            stump_score += 1.0   
     if stump_score > threshold: 
         print("Stump detected")
         return -5
-        
     else: 
         print("Stump not close enough")
         return None
@@ -468,13 +428,16 @@ def avoid_edge_of_world(image_array, x_size, y_size, threshold):
     for idx in range(len(filtered_array)):
         if (is_pixel_match(filtered_array[idx],visual_dict["Earth"])):
             ground_score += 1.0  # increment count
-    
     if ground_score < threshold: 
         print("No Ground detected")
         return -10
-        
     else: 
         return None 
+    
+    
+def waggle():
+    # cover blindspots?
+    return    
     
     
 #------------------CHANGE CODE ABOVE HERE ONLY--------------------------
@@ -555,7 +518,6 @@ def main():
     fl = robot.getDevice("wheel2")
     br = robot.getDevice("wheel3")
     bl = robot.getDevice("wheel4") 
-    wheels = [fr, fl, br, bl]
 
     fr.setPosition(float('inf'))   
     fl.setPosition(float('inf'))
