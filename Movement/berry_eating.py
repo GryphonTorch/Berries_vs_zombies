@@ -1,13 +1,17 @@
 
-# Dictionary of items of interest in RGB order, NEED TO MODIFY !!!!
-visual_dict = {"Red_bright":(37, 221, 194), 
-               "Red_shadow":(10, 69, 67),
-               "Pink_bright":(33, 143, 230),
-               "Pink_shadow":(10, 40, 99),
-               "Orange_bright":(35, 192, 39),
-               "Orange_shadow":(9, 53, 12),
-               "Yellow_bright":(112, 48, 182),
-               "Yellow_shadow":(87, 37, 154),
+# Dictionary of items of interest in RGB order
+visual_dict = {"Red_bright": (211, 64, 48),
+               "Red_shadow": (71, 19, 18),
+               "Pink_bright": (214, 142, 187),
+               "Pink_shadow": (88, 53, 87),
+               "Orange_bright": (198, 127, 87),
+               "Orange_shadow": (64, 39, 33),
+               "Yellow_bright": (185, 173, 28),
+               "Yellow_shadow": (71, 68, 16),
+               "Stump_bright": (31, 31, 34),
+               "Stump_shadow": (10, 11, 15),
+               "Wall_bright": (211, 212, 216),
+               "Wall_shadow": (71, 76, 97)
                }
 
 

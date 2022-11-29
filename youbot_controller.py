@@ -236,6 +236,7 @@ EXPLORE AND EAT BERRIES FUNCTION
 random_walk - when no berries are around, create random trajectory
 berry_lookout - vision-based berry function, returns ("color", angle, distance) 
 get_berry - moves robot towards berry
+avoid_stump - after seeing stump, swing arm, then do a 90 degree turn.
 """
 
 
@@ -414,6 +415,66 @@ def get_berry(front_food, right_food, back_food, left_food, good_berry_list):
         return 10, "none" # None
     """
 
+def avoid_stump(front_food, threshold):
+    
+    filtered_array = []   # new list of RGB pixels for non-background objects
+    filtered_pos = []     # positions to save x,y information
+    for col_idx in range(x_size):
+        for row_idx in range(y_size):
+            pix_RGB = image_array[col_idx][row_idx]    # a tuple
+            # Now compare againsst known Sky, Mountain and Earth data
+            if(is_pixel_match(pix_RGB, visual_dict["Sky"]) == False):
+                if(is_pixel_match(pix_RGB, visual_dict["Mountain"]) == False):    
+                    if(is_pixel_match(pix_RGB, visual_dict["Earth"]) == False): 
+                        filtered_array.append(pix_RGB)
+                        filtered_pos.append((col_idx, row_idx))  # note order!
+
+
+    # Find the color via counting scores
+    #print("Debugging filtered length:",len(filtered_array))
+    stump_score = 0  # pixel count
+    
+    for idx in range(len(filtered_array)):
+        if (is_pixel_match(filtered_array[idx],visual_dict["Stump_bright"]) or is_pixel_match(filtered_array[idx], visual_dict["Stump_shadow"])):
+            stump_score += 1.0  # increment count
+    
+    if stump_score > threshold: 
+        print("Stump detected")
+        return -5
+        
+    else: 
+        print("Stump not close enough")
+        return None
+
+
+def avoid_edge_of_world(front_food, threshold):
+    filtered_array = []   # new list of RGB pixels for non-background objects
+    filtered_pos = []     # positions to save x,y information
+    for col_idx in range(x_size):
+        for row_idx in range(y_size):
+            pix_RGB = image_array[col_idx][row_idx]    # a tuple
+            # Now compare againsst known Sky, Mountain data
+            if(is_pixel_match(pix_RGB, visual_dict["Sky"]) == False):
+                if(is_pixel_match(pix_RGB, visual_dict["Mountain"]) == False):    
+                        filtered_array.append(pix_RGB)
+                        filtered_pos.append((col_idx, row_idx))  # note order!
+
+    # Find the color via counting scores
+    #print("Debugging filtered length:",len(filtered_array))
+    ground_score = 0  # pixel count, Sum of x (col_idx), Sum of y (row_idx)
+    
+    for idx in range(len(filtered_array)):
+        if (is_pixel_match(filtered_array[idx],visual_dict["Earth"])):
+            ground_score += 1.0  # increment count
+    
+    if ground_score < threshold: 
+        print("No Ground detected")
+        return -10
+        
+    else: 
+        return None 
+    
+    
 #------------------CHANGE CODE ABOVE HERE ONLY--------------------------
 
 def main():
@@ -582,7 +643,21 @@ def main():
                     print("want_to_eat:", want_to_eat)
                 else:
                     want_to_eat = 0   # initialize to none
-             
+                
+                stump = avoid_stump(front_food, 75)
+                
+                # Get robot to turn if there is a stump
+                if stump != None:
+                    turn_counter += stump
+                    print("Stump detected")
+                    # add swing arm function
+                
+                edge = avoid_edge_of_world(front_food, 2)
+                
+                if edge != None:
+                    turn_counter += edge
+                    print("No ground detected") 
+          
             # Learning: create list of good berries; any that gives -20 energy gets blacklisted
             final_energy = robot_info[1]
             if (final_energy - init_energy) < -19:
