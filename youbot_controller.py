@@ -380,6 +380,8 @@ def get_berry(front_food, right_food, back_food, left_food, good_berry_list):
 def avoid_stump(image_array, x_size, y_size, threshold):
     """
     Correction function when robot hits stump
+    Vision based by detecting large amount of stump pixels (dark brown patch)
+    Returns turn amount to increment turn_counter
     """
     filtered_array = []   # new list of RGB pixels for non-background objects
     filtered_pos = []     # positions to save x,y information
@@ -407,6 +409,11 @@ def avoid_stump(image_array, x_size, y_size, threshold):
 
 
 def avoid_edge_of_world(image_array, x_size, y_size, threshold):
+    """
+    Correction function to turn away from edge of world (or edge of wall)
+    Vision based, detects when the image runs out of ground
+    Returns turn amount to increment turn_counter
+    """
     filtered_array = []   # new list of RGB pixels for non-background objects
     filtered_pos = []     # positions to save x,y information
     for col_idx in range(x_size):
