@@ -7,6 +7,8 @@ https://docs.google.com/document/d/1lpzJqTAA1lr0GP-oU-W4man2UXQBcRrqUkJqqb4J70Y/
 
 Preliminary performance on test world 1: https://drive.google.com/file/d/1W-MHpjuspnriWQ1fiHwI9vkQ8PiUIxeE/view?usp=sharing 
 
+Submission documents master link (write nicely here): https://docs.google.com/document/d/1jWfGhogEKjgl7lnlbYbO9TrWtQXLFaKn70WtArvmt8E/edit?usp=sharing
+
 Debugging (and solutions)
 
 1 - Tune up zombie threshold to 75 such that it does not overwhelm berry search
