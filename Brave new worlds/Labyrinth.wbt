@@ -1,0 +1,1568 @@
+#VRML_SIM R2021b utf8
+WorldInfo {
+  basicTimeStep 128
+  coordinateSystem "NUE"
+}
+Viewpoint {
+  orientation -0.20042449230871795 0.8990071668198037 0.389379168535532 2.6256820076011804
+  position 18.974934355230783 34.25986170968158 -26.375910133306974
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+  castShadows FALSE
+}
+RectangleArena {
+  floorSize 25 25
+  floorTileSize 50 50
+}
+DEF Youbot Youbot {
+  translation 0.4147013971316261 0.08529787858761848 0.0010586477884836527
+  rotation -0.9999832403638776 0.0021452140375068404 -0.005377457400336988 1.5724162832795754
+  controller "youbot_controller"
+  supervisor TRUE
+  bodySlot [
+    Accelerometer {
+    }
+    GPS {
+    }
+    Compass {
+    }
+    DEF ForwardLowResBigFov Camera {
+      translation 0.3 0 0
+      rotation 0.5773506025225371 -0.5773506025225371 -0.5773496025232256 2.09439
+      name "ForwardLowResBigFov"
+      fieldOfView 1
+      width 128
+    }
+    DEF ForwardHighResSmallFov Camera {
+      translation 0.3 0 0
+      rotation 0.5773506025225371 -0.5773506025225371 -0.5773496025232256 2.09439
+      name "ForwardHighResSmallFov"
+      fieldOfView 0.5
+      width 256
+      height 128
+    }
+    DEF ForwardHighResBigFov Camera {
+      translation 0.3 0 0
+      rotation 0.5773506025225371 -0.5773506025225371 -0.5773496025232256 2.09439
+      name "ForwardHighRes"
+      fieldOfView 1
+      width 256
+      height 128
+    }
+    DEF ForwardHighResSmallFov Camera {
+      translation 0.3 0 0
+      rotation 0.5773506025225371 -0.5773506025225371 -0.5773496025232256 2.09439
+      name "ForwardHighResSmall"
+      fieldOfView 0.5
+      width 256
+      height 128
+    }
+    DEF BackLowRes Camera {
+      translation -0.27 -2.00826e-06 1.02099e-06
+      rotation 0.5773486025216047 0.5773526025188509 0.5773496025209163 2.0944
+      name "BackLowRes"
+      fieldOfView 1
+      width 128
+    }
+    DEF RightLowRes Camera {
+      translation -0.00999658 -0.200002 1.57252e-06
+      rotation -6.106782428407177e-07 0.7071072811864377 0.70710628118604 -3.1415853071795863
+      name "RightLowRes"
+      fieldOfView 1
+      width 128
+    }
+    DEF LeftLowRes Camera {
+      translation -0.00999894 0.189998 -2.08147e-07
+      rotation -0.9999999999879128 -4.8411699999414835e-06 -8.588339999896191e-07 -1.5707953071795862
+      name "LeftLowRes"
+      fieldOfView 1
+      width 128
+    }
+    DEF BackHighRes Camera {
+      translation -0.27 -2.00826e-06 1.02099e-06
+      rotation 0.5773486025216047 0.5773526025188509 0.5773496025209163 2.0944
+      name "BackHighRes"
+      fieldOfView 1
+      width 256
+      height 128
+    }
+    Gyro {
+    }
+    LightSensor {
+    }
+    Receiver {
+    }
+    RangeFinder {
+      translation 0.41 0 0
+      rotation -0.5773502691896258 0.5773502691896258 0.5773502691896258 -2.0944
+      maxRange 5
+    }
+    Lidar {
+      rotation 0.5773509358554485 0.5773489358556708 0.5773509358554485 2.0944
+      numberOfLayers 1
+      near 0.3
+      minRange 0.3
+      maxRange 10
+      type "rotating"
+    }
+    Group {
+    }
+  ]
+}
+DEF Wall Solid {
+  translation 5.01 0.7 -5.02
+  rotation 0.3066079193795392 -0.011854155239539529 -0.9517620830739724 -6.674201642052153e-16
+  children [
+    Shape {
+      appearance PBRAppearance {
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 15 2.5 0.3
+      }
+    }
+  ]
+  name "solid(20)"
+  boundingObject Shape {
+    geometry Box {
+      size 15 2.5 0.3
+    }
+  }
+}
+DEF Wall Solid {
+  translation -4.98968 0.7 6.02876
+  rotation 0.3066079193795392 -0.011854155239539529 -0.9517620830739724 -6.674201642052153e-16
+  children [
+    Shape {
+      appearance PBRAppearance {
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 15 2.5 0.3
+      }
+    }
+  ]
+  name "solid(49)"
+  boundingObject Shape {
+    geometry Box {
+      size 15 2.5 0.3
+    }
+  }
+}
+DEF Wall Solid {
+  translation -8.63748 0.7 -7.43488
+  rotation -3.17613e-16 1 -1.02318e-16 -3.1415853071795863
+  children [
+    Shape {
+      appearance PBRAppearance {
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.3 2.5 10
+      }
+    }
+  ]
+  name "solid(21)"
+  boundingObject Shape {
+    geometry Box {
+      size 0.3 2.5 10
+    }
+  }
+}
+DEF Wall Solid {
+  translation 7.00439 0.7 9.32886
+  rotation -4.19931e-16 1 2.15294e-16 1.5708
+  children [
+    Shape {
+      appearance PBRAppearance {
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.3 2.5 10
+      }
+    }
+  ]
+  name "solid(50)"
+  boundingObject Shape {
+    geometry Box {
+      size 0.3 2.5 10
+    }
+  }
+}
+DEF Wall Solid {
+  translation -0.434672 0.7 3.03899
+  rotation -4.19931e-16 1 2.15294e-16 1.5708
+  children [
+    Shape {
+      appearance PBRAppearance {
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.3 2.5 10
+      }
+    }
+  ]
+  name "solid(52)"
+  boundingObject Shape {
+    geometry Box {
+      size 0.3 2.5 10
+    }
+  }
+}
+DEF Wall Solid {
+  translation -3.74859 0.7 -9.22881
+  rotation -4.19931e-16 1 2.15294e-16 1.5708
+  children [
+    Shape {
+      appearance PBRAppearance {
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.3 2.5 10
+      }
+    }
+  ]
+  name "solid(51)"
+  boundingObject Shape {
+    geometry Box {
+      size 0.3 2.5 10
+    }
+  }
+}
+DEF Berry0 Solid {
+  translation 0.23022350297534314 0.19661077866654478 -11.42011175148767
+  rotation -0.4472135955001276 2.106481071727237e-12 -0.8944271909998309 0.0010477190173800754
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 1 0.2 0.1
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "solid(6)"
+  boundingObject DEF BOX Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+DEF Berry1 Solid {
+  translation 8.31002667697209 0.048159199150399394 -11.420078338486041
+  rotation -0.4472135955070656 3.412421883221858e-11 -0.894427190996362 7.898404368130288e-05
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 1 0.2 0.1
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "solid(1)"
+  boundingObject DEF BOX Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+DEF Berry2 Solid {
+  translation 10.060056676975341 0.04808262870562881 -10.300078338487669
+  rotation -0.44721359549600787 2.7384897843766188e-11 -0.8944271910018908 7.898411632108394e-05
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 1 0.2 0.1
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "solid(2)"
+  boundingObject DEF BOX Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+DEF Berry3 Solid {
+  translation 1.1400286447124945 0.04102214017127229 8.099920677643755
+  rotation -0.4472135955040749 2.1467900142233193e-11 -0.8944271909978574 0.00012298384787074788
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 1 0.2 0.1
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "solid(3)"
+  boundingObject DEF BOX Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+DEF Berry4 Solid {
+  translation 10.250058644784934 0.03995467699884049 5.089920677607533
+  rotation -0.4472135955018546 1.835200336304736e-11 -0.8944271909989674 0.00012298546766712127
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 1 0.2 0.1
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "solid(4)"
+  boundingObject DEF BOX Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+DEF Berry5 Solid {
+  translation -8.68997135530027 0.041210187787116326 -7.820079322349865
+  rotation -0.44721359550584794 1.8439919045115637e-11 -0.8944271909969709 0.00012298356239552247
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 1 0.2 0.1
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "solid(5)"
+  boundingObject DEF BOX Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+DEF Berry6 Solid {
+  translation -10.959941355368159 0.04220970314492111 7.5199206776840795
+  rotation -0.44721359550363254 2.0499349459462838e-11 -0.8944271909980784 0.00012298204436536714
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 1 0.2 0.1
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "solid(7)"
+  boundingObject DEF BOX Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+DEF Berry7 Solid {
+  translation 4.540028644763511 0.04027042186579967 -0.05007892238175668
+  rotation -0.4472135954872133 1.9565017150110743e-11 -0.8944271910062882 0.0001229849886779724
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 1 0.2 0.1
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "solid(8)"
+  boundingObject DEF BOX Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+DEF Berry8 Solid {
+  translation -3.529971355258257 0.040591231699357654 -9.810079322370871
+  rotation -0.44721359549609024 2.3114070206443736e-11 -0.8944271910018495 0.0001229845018922012
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 1 0.2 0.1
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "solid(9)"
+  boundingObject DEF BOX Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+DEF Berry9 Solid {
+  translation 5.310026676957864 0.048494435158822055 -7.000078338478931
+  rotation -0.4472135955091345 2.8776727853974027e-11 -0.8944271909953276 7.898372554423647e-05
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 1 0.2 0.1
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "solid(10)"
+  boundingObject DEF BOX Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+DEF Berry10 Solid {
+  translation -7.029971355305563 0.0412881045720195 -2.9500793223472184
+  rotation -0.4472135955023001 1.9820942759652715e-11 -0.8944271909987449 0.00012298344409423538
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 1 0.2 0.1
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "solid(11)"
+  boundingObject DEF BOX Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+DEF Berry11 Solid {
+  translation -4.48997135533172 0.04167327811248426 9.78992067766586
+  rotation -0.44721359550629547 2.0448335132750432e-11 -0.8944271909967471 0.00012298285920331784
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 1 0.2 0.1
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "solid(12)"
+  boundingObject DEF BOX Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+DEF Berry12 Solid {
+  translation 10.650056676967028 0.04827859329172993 -3.030078338483512
+  rotation -0.4472135954925543 3.209263308629484e-11 -0.8944271910036178 7.898393040130954e-05
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 1 0.2 0.1
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "solid(13)"
+  boundingObject DEF BOX Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+DEF Berry13 Solid {
+  translation 9.100257383969543 0.24859316615257349 0.17983030801522834
+  rotation -0.44721359550098666 2.93023655021681e-11 -0.8944271909994015 9.477887177673779e-05
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 1 0.9 0
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "solid(14)"
+  boundingObject DEF BOX Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+DEF Berry14 Solid {
+  translation 10.65005864476917 0.04018703234156301 10.50992067761541
+  rotation -0.44721359550097056 2.2553241532487915e-11 -0.8944271909994095 0.00012298511519124369
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 1 0.9 0
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "solid(15)"
+  boundingObject DEF BOX Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+DEF Berry15 Solid {
+  translation 10.060056676976906 0.04804568923352805 -11.450078338488455
+  rotation -0.4472135954967009 3.0217618853919777e-11 -0.8944271910015444 7.898415136002422e-05
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 1 0.9 0
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "solid(16)"
+  boundingObject DEF BOX Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+DEF Berry16 Solid {
+  translation 9.200056676971995 0.04816152674910612 -9.570078338485994
+  rotation -0.4472135954842645 3.025623808213738e-11 -0.8944271910077627 7.89840414743011e-05
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 1 0.9 0
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "solid(17)"
+  boundingObject DEF BOX Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+DEF Berry17 Solid {
+  translation 0.600058644714095 0.04099856446869247 6.549920677642952
+  rotation -0.44721359550096523 1.2105212503117437e-11 -0.8944271909994123 0.00012298388366019627
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 1 0.9 0
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "solid(18)"
+  boundingObject DEF BOX Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+DEF Berry18 Solid {
+  translation -9.049941355295156 0.04113484640895835 -10.040079322352419
+  rotation -0.4472135954925387 1.5960759933576736e-11 -0.8944271910036253 0.0001229836767738791
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 1 0.9 0
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "solid(19)"
+  boundingObject DEF BOX Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+DEF Berry19 Solid {
+  translation -8.929941355353783 0.04199810128822014 7.369920677676892
+  rotation -0.44721359549786127 2.0440325441050272e-11 -0.8944271910009642 0.00012298236582918056
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 1 0.9 0
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "solid(23)"
+  boundingObject DEF BOX Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+DEF Berry20 Solid {
+  translation -2.129941355277576 0.040875878529868896 -1.350079322361212
+  rotation -0.4472135955036319 2.0333982193689818e-11 -0.894427190998079 0.00012298406988650785
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 1 0.9 0
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "solid(24)"
+  boundingObject DEF BOX Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+DEF Berry21 Solid {
+  translation 4.350058644749043 0.040483665544300766 3.8099206776254784
+  rotation -0.44721359550185585 2.0999565284964428e-11 -0.8944271909989671 0.0001229846651221012
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 1 0.9 0
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "solid(25)"
+  boundingObject DEF BOX Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+DEF Berry22 Solid {
+  translation 5.879991002576397 0.19114837722054007 11.620263463076958
+  rotation 0.8183533896654571 0.00022244921589584935 0.5747153035542057 0.001967168333004792
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.9 0.5 0.3
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "solid(31)"
+  boundingObject DEF BOX Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+DEF Berry23 Solid {
+  translation 2.3601154190885003 0.19292106701760345 -4.190453717013422
+  rotation -0.7848442082604945 -0.0014180008500337652 0.6196915023086463 0.0011493815425477393
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.9 0.5 0.3
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "solid(32)"
+  boundingObject DEF BOX Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+DEF Berry24 Solid {
+  translation 7.740068644747496 0.04050645789399557 -10.300079322373751
+  rotation -0.44721359549741696 1.5878547338457284e-11 -0.8944271910011863 0.00012298463053724888
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.9 0.5 0.3
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "solid(33)"
+  boundingObject DEF BOX Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+DEF Berry25 Solid {
+  translation 0.23006864463035442 0.04223155117880934 8.989920677684824
+  rotation -0.44721359548987394 1.5599008777215345e-11 -0.8944271910049578 0.0001229820111713765
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.9 0.5 0.3
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "solid(34)"
+  boundingObject DEF BOX Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+DEF Berry26 Solid {
+  translation -0.27993135536390673 0.04214708856842892 6.289920677681953
+  rotation -0.44721359549564393 1.868945843289274e-11 -0.894427191002073 0.00012298213949398198
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.9 0.5 0.3
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "solid(35)"
+  boundingObject DEF BOX Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+DEF Berry27 Solid {
+  translation 7.740068644723982 0.04085291448639103 -3.410079322361991
+  rotation -0.4472135954983051 2.0375500422864198e-11 -0.8944271910007423 0.00012298410474218717
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.9 0.5 0.3
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "solid(36)"
+  boundingObject DEF BOX Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+DEF Berry28 Solid {
+  translation -8.40993135540163 0.04270221749235272 1.069920677700816
+  rotation -0.44721359550629397 2.0407886688841613e-11 -0.894427190996748 0.00012298129595078312
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.9 0.5 0.3
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "solid(37)"
+  boundingObject DEF BOX Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+DEF Berry29 Solid {
+  translation -6.699931355360695 0.04209980839293205 -7.490079322319654
+  rotation -0.4472135954894336 2.093484338731966e-11 -0.8944271910051781 0.00012298221132302277
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.9 0.5 0.3
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "solid(38)"
+  boundingObject DEF BOX Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+DEF Berry30 Solid {
+  translation 3.970068644717705 0.0409453930502659 -9.110079322358853
+  rotation -0.44721359550851486 2.0170496823395652e-11 -0.8944271909956374 0.0001229839643704483
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.9 0.5 0.3
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "solid(39)"
+  boundingObject DEF BOX Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+DEF Berry31 Solid {
+  translation -6.409684941865764 0.1903303846877325 11.569837296052329
+  rotation -0.71113870257854 0.000621237277509883 -0.7030514630943855 0.0006685147055753045
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.9 0.5 0.7
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "solid(40)"
+  boundingObject DEF BOX Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+DEF Berry32 Solid {
+  translation -10.709648143825634 0.192228834671249 1.1402186515563415
+  rotation 0.9399525927793619 -0.0006716644167424081 -0.34130436884731785 0.0025914158899236423
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.9 0.5 0.7
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "solid(41)"
+  boundingObject DEF BOX Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+DEF Berry33 Solid {
+  translation 8.410156677000225 0.04749568933145573 -10.53007833850011
+  rotation -0.4472135955063713 3.687324605980232e-11 -0.8944271909967091 7.898467278087962e-05
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.9 0.5 0.7
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "solid(42)"
+  boundingObject DEF BOX Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+DEF Berry34 Solid {
+  translation 0.31015864478184135 0.04000027242909161 7.429920677609079
+  rotation -0.447213595499195 2.185960568622684e-11 -0.8944271910002974 0.0001229853985039442
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.9 0.5 0.7
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "solid(43)"
+  boundingObject DEF BOX Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+DEF Berry35 Solid {
+  translation 5.550156676968056 0.048254307991949255 7.329921661515973
+  rotation -0.44721359549186057 2.6724659292109502e-11 -0.8944271910039645 7.898395344334761e-05
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.9 0.5 0.7
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "solid(44)"
+  boundingObject DEF BOX Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+DEF Berry36 Solid {
+  translation 5.420156676980121 0.04796990152106591 -1.7700783384900605
+  rotation -0.4472135955208839 4.209644922293823e-11 -0.894427190989453 7.898422324071003e-05
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.9 0.5 0.7
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "solid(45)"
+  boundingObject DEF BOX Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+DEF Berry37 Solid {
+  translation -10.739841355303469 0.04125723188366155 10.329920677651733
+  rotation -0.447213595488546 1.80234923350189e-11 -0.8944271910056218 0.00012298349097043289
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.9 0.5 0.7
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "solid(46)"
+  boundingObject DEF BOX Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+DEF Berry38 Solid {
+  translation -10.739841355244254 0.04038485577217727 -7.020079322377874
+  rotation -0.4472135954996402 2.272626022101721e-11 -0.8944271910000746 0.0001229848150535508
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.9 0.5 0.7
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "solid(47)"
+  boundingObject DEF BOX Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+DEF Berry39 Solid {
+  translation 4.590156676991486 0.047701863767931126 -11.760078338495738
+  rotation -0.44721359551121104 3.00474838713326e-11 -0.8944271909942894 7.898447738101624e-05
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.9 0.5 0.7
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  name "solid(48)"
+  boundingObject DEF BOX Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+DEF BOX1 Solid {
+  translation 9.16 0.1 0.18
+  rotation -0.7774744030964151 0.09313982042610232 -0.6219795224771202 2.1933874080388928e-16
+  scale 2 2 2
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0 0 0
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.2 0.1 0.2
+      }
+    }
+  ]
+  name "solid(22)"
+  boundingObject DEF BOX Box {
+    size 0.2 0.1 0.2
+  }
+}
+DEF BOX2 Solid {
+  translation 0.21008709741956985 0.04820314850610175 -11.410043548709782
+  rotation -0.4472135955002927 5.689552569709218e-14 -0.8944271909997485 0.0010148295237405484
+  scale 2 2 2
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0 0 0
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.2 0.1 0.2
+      }
+    }
+  ]
+  name "solid(26)"
+  boundingObject DEF BOX Box {
+    size 0.2 0.1 0.2
+  }
+  physics Physics {
+  }
+}
+DEF BOX3 Solid {
+  translation -6.41835660431157 0.04820453309719091 11.579958964374045
+  rotation -0.9614882782240644 5.193476624048242e-08 -0.2748459401878099 0.00042679948021422375
+  scale 2 2 2
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0 0 0
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.2 0.1 0.2
+      }
+    }
+  ]
+  name "solid(27)"
+  boundingObject DEF BOX Box {
+    size 0.2 0.1 0.2
+  }
+  physics Physics {
+  }
+}
+DEF BOX4 Solid {
+  translation 2.3799106908018994 0.04820287596620973 -4.170046556483462
+  rotation -0.4623043266483842 8.565359224359124e-08 0.8867213257625964 0.0010071858783442082
+  scale 2 2 2
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0 0 0
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.2 0.1 0.2
+      }
+    }
+  ]
+  name "solid(28)"
+  boundingObject DEF BOX Box {
+    size 0.2 0.1 0.2
+  }
+  physics Physics {
+  }
+}
+DEF BOX5 Solid {
+  translation -10.728284558251307 0.04820277843978274 1.0803061691868632
+  rotation 0.9788739851238014 -0.0045835631232671375 -0.204413092038995 0.0031313059017576924
+  scale 2 2 2
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0 0 0
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.2 0.1 0.2
+      }
+    }
+  ]
+  name "solid(29)"
+  boundingObject DEF BOX Box {
+    size 0.2 0.1 0.2
+  }
+  physics Physics {
+  }
+}
+DEF BOX6 Solid {
+  translation 5.909876223280355 0.04820376624642555 11.58015984119616
+  rotation 0.7827773624651458 -1.1942902305219444e-08 0.6223018566677347 0.002018552701634258
+  scale 2 2 2
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0 0 0
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.2 0.1 0.2
+      }
+    }
+  ]
+  name "solid(30)"
+  boundingObject DEF BOX Box {
+    size 0.2 0.1 0.2
+  }
+  physics Physics {
+  }
+}
+DEF zombie1 Pedestrian {
+  translation -10.3906 1.27 -7.41088
+  rotation 0 1 0 0.8080057916952202
+  name "pedestrian1"
+  controller "blue_zombie"
+  controllerArgs [
+    "--trajectory=\"\""
+    "--speed=1.5"
+  ]
+  shirtColor 0 0.5 1
+  pantsColor 0 0.5 1
+  shoesColor 0 0.5 1
+  skinColor 0 0.5 1
+  bodySlot [
+    Emitter {
+      range 4
+      channel -1
+    }
+  ]
+  rightLegAngle 0.23563636363636417
+  rightLowerLegAngle 0.13490909090909156
+  rightFootAngle 0.40472727272727466
+  leftLegAngle -1.1294545454545468
+  leftLowerLegAngle 1.705272727272728
+  leftFootAngle -0.06490909090909155
+  rightArmAngle -0.34072727272727515
+  rightLowerArmAngle -0.5698181818181831
+  rightHandAngle -0.24709090909090947
+  leftArmAngle 0.5534545454545489
+  leftLowerArmAngle -0.6803636363636388
+  leftHandAngle 0.11563636363636419
+  headAngle 0.003272727272726854
+}
+DEF zombie2 Pedestrian {
+  translation 3.93043 1.27 11.2476
+  rotation 0 1 0 1.885252980433034
+  name "pedestrian(1)"
+  controller "green_zombie"
+  controllerArgs [
+    "--trajectory=\"\""
+    " --speed=1.5"
+  ]
+  shirtColor 0 0.7 0
+  pantsColor 0 0.7 0
+  shoesColor 0 0.7 0
+  skinColor 0 0.7 0
+  bodySlot [
+    Emitter {
+      range 4
+      channel -1
+    }
+  ]
+  leftHandSlot [
+    Emitter {
+    }
+  ]
+  rightLegAngle 0.23563636363636417
+  rightLowerLegAngle 0.13490909090909156
+  rightFootAngle 0.40472727272727466
+  leftLegAngle -1.1294545454545468
+  leftLowerLegAngle 1.705272727272728
+  leftFootAngle -0.06490909090909155
+  rightArmAngle -0.34072727272727515
+  rightLowerArmAngle -0.5698181818181831
+  rightHandAngle -0.24709090909090947
+  leftArmAngle 0.5534545454545489
+  leftLowerArmAngle -0.6803636363636388
+  leftHandAngle 0.11563636363636419
+  headAngle 0.003272727272726854
+}
+DEF zombie7 Pedestrian {
+  translation -1.82059 1.27 -12.1934
+  rotation 0 1 0 1.16494
+  name "pedestrian(3)"
+  controller "green_zombie"
+  controllerArgs [
+    "--trajectory=\"\""
+    " --speed=1.5"
+  ]
+  shirtColor 0 0.7 0
+  pantsColor 0 0.7 0
+  shoesColor 0 0.7 0
+  skinColor 0 0.7 0
+  bodySlot [
+    Emitter {
+      range 4
+      channel -1
+    }
+  ]
+  leftHandSlot [
+    Emitter {
+    }
+  ]
+  rightLegAngle 0.23563636363636417
+  rightLowerLegAngle 0.13490909090909156
+  rightFootAngle 0.40472727272727466
+  leftLegAngle -1.1294545454545468
+  leftLowerLegAngle 1.705272727272728
+  leftFootAngle -0.06490909090909155
+  rightArmAngle -0.34072727272727515
+  rightLowerArmAngle -0.5698181818181831
+  rightHandAngle -0.24709090909090947
+  leftArmAngle 0.5534545454545489
+  leftLowerArmAngle -0.6803636363636388
+  leftHandAngle 0.11563636363636419
+  headAngle 0.003272727272726854
+}
+DEF zombie7 Pedestrian {
+  translation -0.1235 1.27 -10.2371
+  rotation 0 1 0 2.73573
+  name "pedestrian(8)"
+  controller "green_zombie"
+  controllerArgs [
+    "--trajectory=\"\""
+    " --speed=1.5"
+  ]
+  shirtColor 0 0.7 0
+  pantsColor 0 0.7 0
+  shoesColor 0 0.7 0
+  skinColor 0 0.7 0
+  bodySlot [
+    Emitter {
+      range 4
+      channel -1
+    }
+  ]
+  leftHandSlot [
+    Emitter {
+    }
+  ]
+  rightLegAngle 0.23563636363636417
+  rightLowerLegAngle 0.13490909090909156
+  rightFootAngle 0.40472727272727466
+  leftLegAngle -1.1294545454545468
+  leftLowerLegAngle 1.705272727272728
+  leftFootAngle -0.06490909090909155
+  rightArmAngle -0.34072727272727515
+  rightLowerArmAngle -0.5698181818181831
+  rightHandAngle -0.24709090909090947
+  leftArmAngle 0.5534545454545489
+  leftLowerArmAngle -0.6803636363636388
+  leftHandAngle 0.11563636363636419
+  headAngle 0.003272727272726854
+}
+DEF zombie7 Pedestrian {
+  translation -0.857025 1.27 -10.5852
+  rotation 0 1 0 1.68854
+  name "pedestrian(7)"
+  controller "green_zombie"
+  controllerArgs [
+    "--trajectory=\"\""
+    " --speed=1.5"
+  ]
+  shirtColor 0 0.7 0
+  pantsColor 0 0.7 0
+  shoesColor 0 0.7 0
+  skinColor 0 0.7 0
+  bodySlot [
+    Emitter {
+      range 4
+      channel -1
+    }
+  ]
+  leftHandSlot [
+    Emitter {
+    }
+  ]
+  rightLegAngle 0.23563636363636417
+  rightLowerLegAngle 0.13490909090909156
+  rightFootAngle 0.40472727272727466
+  leftLegAngle -1.1294545454545468
+  leftLowerLegAngle 1.705272727272728
+  leftFootAngle -0.06490909090909155
+  rightArmAngle -0.34072727272727515
+  rightLowerArmAngle -0.5698181818181831
+  rightHandAngle -0.24709090909090947
+  leftArmAngle 0.5534545454545489
+  leftLowerArmAngle -0.6803636363636388
+  leftHandAngle 0.11563636363636419
+  headAngle 0.003272727272726854
+}
+DEF zombie3 Pedestrian {
+  translation 3.47379 1.27 4.56006
+  rotation 0 1 0 -1.2336738617206326
+  name "pedestrian(2)"
+  controller "blue_zombie"
+  controllerArgs [
+    "--trajectory=\"\""
+    " --speed=1.5"
+  ]
+  shirtColor 0 0.5 1
+  pantsColor 0 0.5 1
+  shoesColor 0 0.5 1
+  skinColor 0 0.5 1
+  bodySlot [
+    Emitter {
+      range 4
+      channel -1
+    }
+  ]
+  rightLegAngle 0.23563636363636417
+  rightLowerLegAngle 0.13490909090909156
+  rightFootAngle 0.40472727272727466
+  leftLegAngle -1.1294545454545468
+  leftLowerLegAngle 1.705272727272728
+  leftFootAngle -0.06490909090909155
+  rightArmAngle -0.34072727272727515
+  rightLowerArmAngle -0.5698181818181831
+  rightHandAngle -0.24709090909090947
+  leftArmAngle 0.5534545454545489
+  leftLowerArmAngle -0.6803636363636388
+  leftHandAngle 0.11563636363636419
+  headAngle 0.003272727272726854
+}
+DEF zombie4 Pedestrian {
+  translation 2.46035 1.27 10.9659
+  rotation 0 1 0 1.9261763171746145
+  name "pedestrian(5)"
+  controller "purple_zombie"
+  controllerArgs [
+    "--trajectory=\"\""
+    " --speed=1.5"
+  ]
+  shirtColor 0.6 0.2 1
+  pantsColor 0.6 0.2 1
+  shoesColor 0.6 0.2 1
+  skinColor 0.6 0.2 1
+  bodySlot [
+    Emitter {
+      range 4
+      channel -1
+    }
+  ]
+  rightLegAngle 0.23563636363636417
+  rightLowerLegAngle 0.13490909090909156
+  rightFootAngle 0.40472727272727466
+  leftLegAngle -1.1294545454545468
+  leftLowerLegAngle 1.705272727272728
+  leftFootAngle -0.06490909090909155
+  rightArmAngle -0.34072727272727515
+  rightLowerArmAngle -0.5698181818181831
+  rightHandAngle -0.24709090909090947
+  leftArmAngle 0.5534545454545489
+  leftLowerArmAngle -0.6803636363636388
+  leftHandAngle 0.11563636363636419
+  headAngle 0.003272727272726854
+}
+DEF zombie5 Pedestrian {
+  translation -4.53292 1.27 4.88985
+  rotation 0 1 0 1.2573411110051802
+  name "pedestrian(4)"
+  controller "acqua_zombie"
+  controllerArgs [
+    "--trajectory=\"\""
+    " --speed=1.5"
+  ]
+  shirtColor 0 0.9 0.7
+  pantsColor 0 0.9 0.7
+  shoesColor 0 0.9 0.7
+  skinColor 0 0.9 0.7
+  bodySlot [
+    Emitter {
+      range 4
+      channel -1
+    }
+  ]
+  rightLegAngle 0.23563636363636417
+  rightLowerLegAngle 0.13490909090909156
+  rightFootAngle 0.40472727272727466
+  leftLegAngle -1.1294545454545468
+  leftLowerLegAngle 1.705272727272728
+  leftFootAngle -0.06490909090909155
+  rightArmAngle -0.34072727272727515
+  rightLowerArmAngle -0.5698181818181831
+  rightHandAngle -0.24709090909090947
+  leftArmAngle 0.5534545454545489
+  leftLowerArmAngle -0.6803636363636388
+  leftHandAngle 0.11563636363636419
+  headAngle 0.003272727272726854
+}
+DEF zombie6 Pedestrian {
+  translation 3.65475 1.27 5.9851
+  rotation 0 1 0 -2.3130153071795863
+  name "pedestrian(6)"
+  controller "acqua_zombie"
+  controllerArgs [
+    "--trajectory=\"\""
+    " --speed=1.5"
+  ]
+  shirtColor 0 0.9 0.7
+  pantsColor 0 0.9 0.7
+  shoesColor 0 0.9 0.7
+  skinColor 0 0.9 0.7
+  bodySlot [
+    Emitter {
+      range 4
+      channel -1
+    }
+  ]
+  rightLegAngle 0.23563636363636417
+  rightLowerLegAngle 0.13490909090909156
+  rightFootAngle 0.40472727272727466
+  leftLegAngle -1.1294545454545468
+  leftLowerLegAngle 1.705272727272728
+  leftFootAngle -0.06490909090909155
+  rightArmAngle -0.34072727272727515
+  rightLowerArmAngle -0.5698181818181831
+  rightHandAngle -0.24709090909090947
+  leftArmAngle 0.5534545454545489
+  leftLowerArmAngle -0.6803636363636388
+  leftHandAngle 0.11563636363636419
+  headAngle 0.003272727272726854
+}
