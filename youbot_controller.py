@@ -597,6 +597,11 @@ def main():
                 turn_counter += stump
                 print("Stump detected")
                 # TODO: add swing arm function
+                arm3.setPosition(-2.00)
+                passive_wait(2.0, robot, timestep)
+                arm1.setPosition(-2.94)
+                passive_wait(2.0, robot, timestep)
+                reset_arm(arm1, arm3)
             # Escape from zombie if needed, else find berries 
             elif front_lookout != None or right_lookout != None or back_lookout != None or left_lookout != None:  
                 print("Zombie spotted! Run...")
