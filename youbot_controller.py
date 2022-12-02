@@ -343,14 +343,14 @@ def get_berry(front_food, right_food, back_food, left_food, good_berry_list):
     """
     #print("In get_berry...")
     if front_food[0] != None and front_food[0] in good_berry_list:
-        if front_food[1] > 1:
+        if front_food[1] > 0.5:
             # Account for window of alignment
             print("Food in front, slightly right")
-            return -5, front_food[0]    
+            return -1, front_food[0]    
             # up to 1 degree accuracy, don't want to deal with rounding/numpy
-        elif front_food[1] < -1:
+        elif front_food[1] < -0.5:
             print("Food in front, slightly left")
-            return 5, front_food[0]
+            return 1, front_food[0]
         else:
             print("Food straight ahead")
             return 0, front_food[0]
@@ -572,7 +572,7 @@ def main():
      # The following code is called every timestep:
          
         # sense and decide every 10 timesteps   
-        if timer%10 == 0:
+        if timer%7 == 0:
             # Observe from four cameras 
             camera1.saveImage('cam1front.png',100)  # for testing purposes, best quality PNG save
             camera6.saveImage('cam6right.png',100) 
@@ -590,7 +590,7 @@ def main():
             left_lookout  = zombie_lookout(left_RGB, 128, 64, 75)
 
             # Edge detect has highest priority
-            edge = avoid_edge_of_world(front_RGB,128, 64, 500)    # image array, x_size, y_size, threshold input
+            edge = avoid_edge_of_world(front_RGB,128, 64, 20)    # image array, x_size, y_size, threshold input
             stump = avoid_stump(front_RGB, 128, 64, 2000)   
             init_energy = robot_info[1]
             if edge != None:
@@ -648,23 +648,23 @@ def main():
         
         # keep moving every timestep    
         if (turn_counter < 120) and (turn_counter > 0):
-            fr.setVelocity(-6.5)
-            br.setVelocity(-6.5)
-            fl.setVelocity(2.5)
-            bl.setVelocity(2.5)    # turn backwards in case of stump
+            fr.setVelocity(-4)
+            br.setVelocity(-4)
+            fl.setVelocity(3)
+            bl.setVelocity(3)    # turn backwards in case of stump
             print("Turn right. Turn counter:", turn_counter)
             turn_counter += 1
         elif turn_counter == 120:   # approx degree
-            fr.setVelocity(5)
-            br.setVelocity(5)
-            fl.setVelocity(5)
-            bl.setVelocity(5)
+            fr.setVelocity(6.5)
+            br.setVelocity(6.5)
+            fl.setVelocity(6.5)
+            bl.setVelocity(6.5)
             print("Forward! Turn counter:", turn_counter)
         elif turn_counter > 120:
-            fr.setVelocity(2.5)
-            br.setVelocity(2.5)
-            fl.setVelocity(-6.5)
-            bl.setVelocity(-6.5)
+            fr.setVelocity(3)
+            br.setVelocity(3)
+            fl.setVelocity(-4)
+            bl.setVelocity(-4)
             print("Turn left. Turn counter:", turn_counter)
             turn_counter -= 1
         elif turn_counter < 0:
@@ -674,11 +674,14 @@ def main():
             bl.setVelocity(-6.5)
             print("Going back! Turn counter:", turn_counter)
         
-        arm1.setPosition(-2.94)
-        passive_wait(1.0, robot, timestep)        
         arm1.setPosition(2.94)
+        passive_wait(1.0, robot, timestep)        
+        arm1.setPosition(-2.94)
         passive_wait(1.0, robot, timestep)
-        
+                
+        if accelerometer.getValues()[0] < -2:
+            print("You've hit something! Turn!")
+            turn_counter = 40
         
         #print(" ")   # for clarity in printout
         #------------------CHANGE CODE ABOVE HERE ONLY--------------------------
