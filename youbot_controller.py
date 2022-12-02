@@ -505,8 +505,8 @@ def main():
     #gyro = robot.getDevice("gyro")
     #gyro.enable(timestep)
     
-    #lightSensor = robot.getDevice("light sensor")
-    #lightSensor.enable(timestep)
+    # lightSensor = robot.getDevice("light sensor")
+    # lightSensor.enable(timestep)
     
     #receiver = robot.getDevice("receiver")
     #receiver.enable(timestep)
@@ -682,7 +682,7 @@ def main():
         if accelerometer.getValues()[0] < -2:
             print("You've hit something! Turn!")
             turn_counter = 40
-        
+                
         #print(" ")   # for clarity in printout
         #------------------CHANGE CODE ABOVE HERE ONLY--------------------------
         
