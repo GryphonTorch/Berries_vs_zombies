@@ -528,6 +528,9 @@ def main():
     br.setPosition(float('inf'))
     bl.setPosition(float('inf'))
     
+    arm1 = robot.getDevice("arm1")
+    arm3 = robot.getDevice("arm3")
+    
     good_berry_list = ["red", "orange", "pink", "yellow"]
     turn_counter = 120   # initialize 
     want_to_eat = 0      # initialize
