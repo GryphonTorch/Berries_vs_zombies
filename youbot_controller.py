@@ -401,10 +401,10 @@ def avoid_stump(image_array, x_size, y_size, threshold):
         if (is_pixel_match(filtered_array[idx],visual_dict["Stump_bright"]) or is_pixel_match(filtered_array[idx], visual_dict["Stump_shadow"])):
             stump_score += 1.0   
     if stump_score > threshold: 
-        print("Stump detected")
+        print("Stump detected, stump pixels", stump_score)
         return -10
     else: 
-        print("Stump not close enough")
+        print("Stump not close enough, stump pixels", stump_score)
         return None
 
 
@@ -530,6 +530,7 @@ def main():
     
     arm1 = robot.getDevice("arm1")
     arm3 = robot.getDevice("arm3")
+    arm3.setPosition(-2)   # push arm ahead
     
     good_berry_list = ["red", "orange", "pink", "yellow"]
     turn_counter = 120   # initialize 
@@ -590,7 +591,7 @@ def main():
 
             # Edge detect has highest priority
             edge = avoid_edge_of_world(front_RGB,128, 64, 500)    # image array, x_size, y_size, threshold input
-            stump = avoid_stump(front_RGB, 128, 64, 4000)   
+            stump = avoid_stump(front_RGB, 128, 64, 2000)   
             init_energy = robot_info[1]
             if edge != None:
                 turn_counter += edge
@@ -599,12 +600,17 @@ def main():
             elif stump != None:
                 turn_counter += stump
                 print("Stump detected")
-                # TODO: add swing arm function
-                arm3.setPosition(-2.00)
-                passive_wait(2.0, robot, timestep)
-                arm1.setPosition(-2.94)
-                passive_wait(2.0, robot, timestep)
-                reset_arm(arm1, arm3)
+                # Swing arm function
+                #arm3.setPosition(-2)
+                #passive_wait(2.0, robot, timestep)
+                #arm1.setPosition(-2.94)
+                #passive_wait(1.0, robot, timestep)
+                #reset_arm(arm1, arm3)
+                
+                #arm1.setPosition(2)
+                #passive_wait(1.0, robot, timestep)
+                #arm1.setPosition(2.94)
+                #passive_wait(2.0, robot, timestep)
             # Escape from zombie if needed, else find berries 
             elif front_lookout != None or right_lookout != None or back_lookout != None or left_lookout != None:  
                 print("Zombie spotted! Run...")
@@ -644,8 +650,8 @@ def main():
         if (turn_counter < 120) and (turn_counter > 0):
             fr.setVelocity(-6.5)
             br.setVelocity(-6.5)
-            fl.setVelocity(-2.5)
-            bl.setVelocity(-2.5)    # turn backwards in case of stump
+            fl.setVelocity(2.5)
+            bl.setVelocity(2.5)    # turn backwards in case of stump
             print("Turn right. Turn counter:", turn_counter)
             turn_counter += 1
         elif turn_counter == 120:   # approx degree
@@ -655,8 +661,8 @@ def main():
             bl.setVelocity(5)
             print("Forward! Turn counter:", turn_counter)
         elif turn_counter > 120:
-            fr.setVelocity(-2.5)
-            br.setVelocity(-2.5)
+            fr.setVelocity(2.5)
+            br.setVelocity(2.5)
             fl.setVelocity(-6.5)
             bl.setVelocity(-6.5)
             print("Turn left. Turn counter:", turn_counter)
@@ -668,7 +674,13 @@ def main():
             bl.setVelocity(-6.5)
             print("Going back! Turn counter:", turn_counter)
         
-        print(" ")   # for clarity in printout
+        arm1.setPosition(-2.94)
+        passive_wait(1.0, robot, timestep)        
+        arm1.setPosition(2.94)
+        passive_wait(1.0, robot, timestep)
+        
+        
+        #print(" ")   # for clarity in printout
         #------------------CHANGE CODE ABOVE HERE ONLY--------------------------
         
     
