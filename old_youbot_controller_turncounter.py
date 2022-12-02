@@ -91,15 +91,6 @@ def is_pixel_match(pixel_RGB, target_RGB):
     --------------------------------------------------------------------------
 """
 
-def set_wheels(fr, br, fl, bl, fr_speed, br_speed, fl_speed, bl_speed):
-    """
-    Common function to change wheel velocities
-    """
-    fr.setVelocity(fr_speed)
-    br.setVelocity(br_speed)
-    fl.setVelocity(fl_speed)
-    bl.setVelocity(bl_speed)
-    return
 
 def zombie_lookout(image_array, x_size, y_size, threshold):
     """
@@ -201,28 +192,23 @@ def zombie_lookout(image_array, x_size, y_size, threshold):
     return zombie_type, angle
 
 
-def make_escape(front_lookout, right_lookout, back_lookout, left_lookout,\
-                fr, br, fl, bl):
+def make_escape(front_lookout, right_lookout, back_lookout, left_lookout):
     """
     Function to escape based on four camera lookouts
     Each input lookout is (zombie type, angle) tuple 
       For now treat all zombie colors the same
     """
     if back_lookout != None:   
-        set_wheels(fr, br, fl, bl, 6.5, 6.5, 6.5, 6.5)
-        return
+        return 120
     elif front_lookout != None:
         if right_lookout != None:
-            set_wheels(fr, br, fl, bl, 6.5, 6.5, -6.5, -6.5)
             print("Turn left from zombie")
-            return
+            return 125
         else:
             print("Turn right from zombie")
-            set_wheels(fr, br, fl, bl, -6.5, -6.5, 6.5, 6.5)
-            return 
+            return 115
     else:
-        set_wheels(fr, br, fl, bl, 4.5, 4.5, 6.5, 6.5)
-        return
+        return 118
    
 
 """ ------------------ 3/3 Berry explore and eat functions -------------------
@@ -350,8 +336,7 @@ def berry_lookout(image_array, x_size, y_size, threshold):
     return berry_type, angle, berry_distance
 
 
-def get_berry(front_food, right_food, back_food, left_food, good_berry_list, \
-              fr, br, fl, bl):
+def get_berry(front_food, right_food, back_food, left_food, good_berry_list):
     """
     Simplified berry eat algorithm, with a bias for berry ahead
     Returns color of the berry it has picked, for energy check later 
@@ -361,31 +346,26 @@ def get_berry(front_food, right_food, back_food, left_food, good_berry_list, \
         if front_food[1] > 0.5:
             # Account for window of alignment
             print("Food in front, slightly right")
-            set_wheels(fr, br, fl, bl, 5, 5, 6.5, 6.5)
-            return front_food[0]    
+            return -1, front_food[0]    
             # up to 1 degree accuracy, don't want to deal with rounding/numpy
         elif front_food[1] < -0.5:
             print("Food in front, slightly left")
-            set_wheels(fr, br, fl, bl, 6.5, 6.5, 5, 5)
-            return front_food[0]
+            return 1, front_food[0]
         else:
             print("Food straight ahead")
-            set_wheels(fr, br, fl, bl, 6.5, 6.5, 6.5, 6.5)
-            return front_food[0]
+            return 0, front_food[0]
     
            
     elif right_food[0] != None and (right_food[0] in good_berry_list):
         print("Debugging: see right")
         # go after the right berry
-        set_wheels(fr, br, fl, bl, -2, -2, 6.5, 6.5)
-        return right_food[0]
+        return -10, right_food[0]
         # will see repeatedly
  
     elif left_food[0] != None and left_food[0] in good_berry_list:
         print("Debugging: see left")
         # before eating left berry, still check its desirability
-        set_wheels(fr, br, fl, bl, 6.5, 6.5,-2, -2)
-        return left_food[0]
+        return 10, left_food[0]
     
     else:
         return None
@@ -397,7 +377,7 @@ def get_berry(front_food, right_food, back_food, left_food, good_berry_list, \
     """
 
 
-def avoid_stump(image_array, x_size, y_size, threshold, fr, br, fl, bl):
+def avoid_stump(image_array, x_size, y_size, threshold):
     """
     Correction function when robot hits stump
     Vision based by detecting large amount of stump pixels (dark brown patch)
@@ -422,14 +402,13 @@ def avoid_stump(image_array, x_size, y_size, threshold, fr, br, fl, bl):
             stump_score += 1.0   
     if stump_score > threshold: 
         print("Stump detected, stump pixels", stump_score)
-        set_wheels(fr, br, fl, bl, 1, 1, 6.5, 6.5)
+        return -10
     else: 
         print("Stump not close enough, stump pixels", stump_score)
-        # don't change wheel type
-    return
+        return None
 
 
-def avoid_edge_of_world(image_array, x_size, y_size, threshold, fr, br, fl, bl):
+def avoid_edge_of_world(image_array, x_size, y_size, threshold):
     """
     Correction function to turn away from edge of world (or edge of wall)
     Vision based, detects when the image runs out of ground
@@ -455,9 +434,9 @@ def avoid_edge_of_world(image_array, x_size, y_size, threshold, fr, br, fl, bl):
             ground_score += 1.0  # increment count
     if ground_score < threshold: 
         print("No Ground detected")
-        set_wheels(fr, br, fl, bl, -6.5, -6.5, 6.5, 6.5)
-       
-    return  
+        return -40
+    else: 
+        return None 
     
     
 def waggle():
@@ -554,6 +533,7 @@ def main():
     arm3.setPosition(-2)   # push arm ahead
     
     good_berry_list = ["red", "orange", "pink", "yellow"]
+    turn_counter = 120   # initialize 
     want_to_eat = 0      # initialize
     init_energy = 100
     
@@ -610,14 +590,32 @@ def main():
             left_lookout  = zombie_lookout(left_RGB, 128, 64, 75)
 
             # Edge detect has highest priority
-            edge = avoid_edge_of_world(front_RGB,128, 64, 20, fr, br, fl, bl)    # image array, x_size, y_size, threshold input
-            stump = avoid_stump(front_RGB, 128, 64, 2000, fr, br, fl, bl)   
+            edge = avoid_edge_of_world(front_RGB,128, 64, 20)    # image array, x_size, y_size, threshold input
+            stump = avoid_stump(front_RGB, 128, 64, 2000)   
             init_energy = robot_info[1]
-                            
+            if edge != None:
+                turn_counter += edge
+                print("I'm on top of the world!") 
+            # Get robot to turn if there is a stump
+            elif stump != None:
+                turn_counter += stump
+                print("Stump detected")
+                # Swing arm function
+                #arm3.setPosition(-2)
+                #passive_wait(2.0, robot, timestep)
+                #arm1.setPosition(-2.94)
+                #passive_wait(1.0, robot, timestep)
+                #reset_arm(arm1, arm3)
+                
+                #arm1.setPosition(2)
+                #passive_wait(1.0, robot, timestep)
+                #arm1.setPosition(2.94)
+                #passive_wait(2.0, robot, timestep)
             # Escape from zombie if needed, else find berries 
-            if front_lookout != None or right_lookout != None or back_lookout != None or left_lookout != None:  
+            elif front_lookout != None or right_lookout != None or back_lookout != None or left_lookout != None:  
                 print("Zombie spotted! Run...")
-                make_escape(front_lookout, right_lookout, back_lookout, left_lookout, fr, br, fl, bl)
+                # either set turn_counter to 120 (forward) or -1 (backward)
+                turn_counter = make_escape(front_lookout, right_lookout, back_lookout, left_lookout)
             else:
                 print("No zombie spotted this turn.. I'll look around.")
                 # Compute type and angle of food
@@ -627,9 +625,10 @@ def main():
                 left_food  = berry_lookout(left_RGB, 128, 64, 1)
             
                 # Get the berry; move, and take note of color string in want_to_eat
-                berries = get_berry(front_food, right_food, back_food, left_food, good_berry_list, fr, br, fl, bl)
+                berries = get_berry(front_food, right_food, back_food, left_food, good_berry_list)
                 if berries != None:
-                    want_to_eat = berries
+                    turn_counter += berries[0]     # note += instead of =; lets us transition between cameras  
+                    want_to_eat = berries[1]
                     print("want_to_eat:", want_to_eat)
                 else:
                     want_to_eat = 0   # initialize to none
@@ -644,11 +643,37 @@ def main():
             else:
                 if want_to_eat == 0 and timer%20 == 0:
                     #turn_counter += random_walk(wheels, random.choice([0,1]))
-                    set_wheels(fr, br, fl, bl, -6.5, -6.5, 6.5, 6.5)
-                    print("'Random' walk")
+                    turn_counter = 110   # induce right turn
+                    print("No berry spotted, turn right")
         
-       
-        # swing arms continuously
+        # keep moving every timestep    
+        if (turn_counter < 120) and (turn_counter > 0):
+            fr.setVelocity(-4)
+            br.setVelocity(-4)
+            fl.setVelocity(3)
+            bl.setVelocity(3)    # turn backwards in case of stump
+            print("Turn right. Turn counter:", turn_counter)
+            turn_counter += 1
+        elif turn_counter == 120:   # approx degree
+            fr.setVelocity(6.5)
+            br.setVelocity(6.5)
+            fl.setVelocity(6.5)
+            bl.setVelocity(6.5)
+            print("Forward! Turn counter:", turn_counter)
+        elif turn_counter > 120:
+            fr.setVelocity(3)
+            br.setVelocity(3)
+            fl.setVelocity(-4)
+            bl.setVelocity(-4)
+            print("Turn left. Turn counter:", turn_counter)
+            turn_counter -= 1
+        elif turn_counter < 0:
+            fr.setVelocity(-6.5)
+            br.setVelocity(-6.5)
+            fl.setVelocity(-6.5)
+            bl.setVelocity(-6.5)
+            print("Going back! Turn counter:", turn_counter)
+        
         arm1.setPosition(2.94)
         passive_wait(1.0, robot, timestep)        
         arm1.setPosition(-2.94)
@@ -656,7 +681,7 @@ def main():
                 
         if accelerometer.getValues()[0] < -2:
             print("You've hit something! Turn!")
-            set_wheels(fr, br, fl, bl, -6.5, -6.5, 6.5, 6.5)
+            turn_counter = 40
                 
         #print(" ")   # for clarity in printout
         #------------------CHANGE CODE ABOVE HERE ONLY--------------------------
