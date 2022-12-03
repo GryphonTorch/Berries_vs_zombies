@@ -546,7 +546,8 @@ def main():
     
     arm1 = robot.getDevice("arm1")
     arm3 = robot.getDevice("arm3")
-    arm3.setPosition(-2)   # push arm ahead
+    arm3.setPosition(-2.1)   # push arm ahead
+    arm1.setPosition(-2.949)
     
     good_berry_list = ["red", "orange", "pink", "yellow"]
     want_to_eat = 0      # initialize
@@ -674,13 +675,14 @@ def main():
        
        
         # swing arms continuously
-        arm3.setPosition(2)
-        passive_wait(1.0, robot, timestep) 
-        arm3.setPosition(-2)   # push arm ahead
-        arm1.setPosition(2.94)
-        passive_wait(1.0, robot, timestep)        
+        passive_wait(3.5, robot, timestep)
+        arm1.setPosition(2.949)
+        passive_wait(3.5, robot, timestep)
+        arm3.setPosition(0)
+        arm1.setPosition(-2.949)
+        passive_wait(3.5, robot, timestep)
+        arm3.setPosition(2.1)
         arm1.setPosition(-2.94)
-        passive_wait(1.0, robot, timestep)
                 
         if accelerometer.getValues()[0] < -2:
             print("You've hit something! Turn!")
