@@ -628,7 +628,7 @@ def main():
                     print("'Random' walk")
             
             print("prev_health - robot_info[0]:", prev_health - robot_info[0] )
-            if prev_health - robot_info[0] >= 1:
+            if prev_health - robot_info[0] >= 1 and robot_info[1] > 0:
                 # zombie chase check
                 print("Emergency!")
                 set_wheels(fr, br, fl, bl, -6.5, -6.5, -6.5, -6.5)
@@ -643,7 +643,7 @@ def main():
             # Edge detect  
            
              
-        if timer %10 == 0:   
+        if timer %5 == 0:   
             front_lookout = zombie_lookout(front_RGB, 128, 64, 150) # x, y image size from specs
             right_lookout = zombie_lookout(right_RGB, 128, 64, 150)
             back_lookout  = zombie_lookout(back_RGB, 128, 64, 150)
@@ -665,7 +665,7 @@ def main():
             stump = avoid_stump(back_RGB, 128, 64, 3000, fr, br, fl, bl)               
             print("Emergency:", emergency)
        
-        if timer%50 == 0:
+        if timer%10 == 0:
             print("Timer:", timer)
             # in case we hit wall
             print("    Reset direction")
