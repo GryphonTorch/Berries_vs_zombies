@@ -73,12 +73,13 @@ def is_pixel_match(pixel_RGB, target_RGB):
     """
     Helper function. Input: pixel RGB is tuple of three values
     Assume standard deviation (error bar) of +/-10 for all values
-    Returns True if match, False if not
+    Returns True if match, False if not.
     10 is empirically tested; if too big we can't pin down zombie/berry type
+    SD also can't be too small in case of shadows
     """
     flag = True       # True if pixel is target
     for idx in (0,1,2):
-        if pixel_RGB[idx] not in range(target_RGB[idx]-7, target_RGB[idx]+7):
+        if pixel_RGB[idx] not in range(target_RGB[idx]-10, target_RGB[idx]+10):
             flag = False
             break
     return flag 
@@ -86,8 +87,11 @@ def is_pixel_match(pixel_RGB, target_RGB):
 
 """ ---------------------- 2/3 Zombie escape functions -----------------------
     Based on the camera image array, detect zombies based on
-    color RGB values. make_escape to forward or turn left/right. 
-    Zombie lookout - vision-based zombie alert function
+    color RGB values. 
+    
+    set_wheels - change wheel velocity
+    zombie_lookout - vision-based zombie alert function
+    make_escape - forward/turn left/right. 
     --------------------------------------------------------------------------
 """
 
@@ -104,12 +108,11 @@ def set_wheels(fr, br, fl, bl, fr_speed, br_speed, fl_speed, bl_speed):
 def zombie_lookout(image_array, x_size, y_size, threshold):
     """
     Main vision-based zombie alert function
-    Need to test vigorously with different inputs! image_array consists of vertical strips now
     Inputs:
         - Array
         - Image dimensions
         - Pixel threshold for zombie warning
-    Psuedocode:
+    Pseudocode:
         - Filter out pixels with sky, mountain or earth
         - Of remaining pixels cluster pixels to determine if a zombie is near
         - From average of cluster, determine relative horizontal position
@@ -206,10 +209,10 @@ def make_escape(front_lookout, right_lookout, back_lookout, left_lookout,\
     """
     Function to escape based on four camera lookouts
     Each input lookout is (zombie type, angle) tuple 
-      For now treat all zombie colors the same
+    For now, we treat all zombie colors the same
     """
     if back_lookout != None:   
-        set_wheels(fr, br, fl, bl, 3.5, 3.5, 6.5, 6.5)
+        set_wheels(fr, br, fl, bl, 3.5, 3.5, 6.5, 6.5) 
         return
     elif front_lookout != None:
         if right_lookout != None:
@@ -229,8 +232,8 @@ def make_escape(front_lookout, right_lookout, back_lookout, left_lookout,\
     random_walk - when no berries are around, create random trajectory
     berry_lookout - vision-based berry function, returns ("color", angle, distance) 
     get_berry - moves robot towards berry
-    avoid_stump - after seeing stump, swing arm, then do a 90 degree turn.
-    avoid_edge_of_world - to not get stuck at the corner of the room
+    avoid_stump - after seeing stump, swerve right and turn away.
+    avoid_edge_of_world - to not get stuck at the corner of the room, sharp turn right
     --------------------------------------------------------------------------
 """
 
@@ -356,8 +359,9 @@ def get_berry(front_food, right_food, back_food, left_food, good_berry_list, \
     Returns color of the berry it has picked, for energy check later 
     """
     #print("In get_berry...")
+    print(good_berry_list)
     if front_food[0] != None and front_food[0] in good_berry_list:
-        delta = front_food[1]*3
+        delta = front_food[1]*0.5
         print("Berry ahead, vectoring to it... Delta:", delta)
         if delta > 2:
             delta = 2 # cap it
@@ -371,14 +375,14 @@ def get_berry(front_food, right_food, back_food, left_food, good_berry_list, \
     elif right_food[0] != None and (right_food[0] in good_berry_list):
         print("Debugging: see right")
         # go after the right berry
-        set_wheels(fr, br, fl, bl, -2, -2, 6.5, 6.5)
+        set_wheels(fr, br, fl, bl, -6.5, -6.5, 6.5, 6.5)
         return right_food[0]
         # will see repeatedly
  
     elif left_food[0] != None and left_food[0] in good_berry_list:
         print("Debugging: see left")
         # before eating left berry, still check its desirability
-        set_wheels(fr, br, fl, bl, 6.5, 6.5,-2, -2)
+        set_wheels(fr, br, fl, bl, 6.5, 6.5,-6.5, -6.5)
         return left_food[0]
     
     else:
@@ -416,7 +420,7 @@ def avoid_stump(image_array, x_size, y_size, threshold, fr, br, fl, bl):
             stump_score += 1.0   
     if stump_score > threshold: 
         print("Warning: stump detected, stump pixels", stump_score)
-        set_wheels(fr, br, fl, bl, 1, 1, 6.5, 6.5)
+        set_wheels(fr, br, fl, bl, -1, -1, 6.5, 6.5)
     #else: 
         #print("Stump not close enough, stump pixels", stump_score)
         # don't change wheel type
@@ -452,11 +456,6 @@ def avoid_edge_of_world(image_array, x_size, y_size, threshold, fr, br, fl, bl):
         set_wheels(fr, br, fl, bl, -6.5, -6.5, 6.5, 6.5)
        
     return  
-    
-    
-def waggle():
-    # cover blindspots?
-    return    
     
     
 #------------------CHANGE CODE ABOVE HERE ONLY--------------------------
@@ -632,7 +631,7 @@ def main():
                 # zombie chase check
                 print("Emergency!")
                 set_wheels(fr, br, fl, bl, -6.5, -6.5, -6.5, -6.5)
-                emergency = 10   # steps to run
+                emergency = 5   # steps to run
             prev_health = robot_info[0]
             
             # highest priority
@@ -665,7 +664,7 @@ def main():
             stump = avoid_stump(back_RGB, 128, 64, 3000, fr, br, fl, bl)               
             print("Emergency:", emergency)
        
-        if timer%10 == 0:
+        if timer%20 == 0:
             print("Timer:", timer)
             # in case we hit wall
             print("    Reset direction")
