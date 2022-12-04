@@ -235,20 +235,19 @@ def make_escape(front_lookout, right_lookout, back_lookout, left_lookout,\
 """
 
 
-def random_walk(choice):
+def random_walk(choice, fr, br, fl, bl):
     """
-    Random walk function: moves forward for 100 timesteps, then rotates left or right
-    for between 50-150 timesteps (a randomized choice). This serves as the explore function for the robot.
+    Random walk function: either sets wheels to randomly turn left or turn right
     
     INPUT: Choice - random choice between 0 and 1 to tell the robot to turn left or right
     for a certain number of timesteps
     """
     if choice == 0:
-        return 30    # to turn for 20 steps
+        set_wheels(fr, br, fl, bl, -4.5, -4.5, 6.5, 6.5)
+        return     # to swerve left
     elif choice == 1:
-        return -30   # to turn for 20 steps
-    else:
-        return 0     # go ahead for 20 steps
+        set_wheels(fr, br, fl, bl, 6.5, 6.5, 4.5, 4.5)
+        return    # to swerve right
     
     
 def berry_lookout(image_array, x_size, y_size, threshold):
@@ -625,8 +624,7 @@ def main():
                 print("Ate bad berry :", want_to_eat) 
             else:
                 if want_to_eat == 0 and timer%20 == 0:
-                    #turn_counter += random_walk(wheels, random.choice([0,1]))
-                    set_wheels(fr, br, fl, bl, -6.5, -6.5, 6.5, 6.5)
+                    random_walk(random.choice([0,1]), fr, br, fl, bl)
                     print("'Random' walk")
             
             print("prev_health - robot_info[0]:", prev_health - robot_info[0] )
