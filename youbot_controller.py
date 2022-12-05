@@ -606,12 +606,12 @@ def main():
         # swing arms continuously
         passive_wait(3.5, robot, timestep)
         arm1.setPosition(2.949)
-        passive_wait(3.5, robot, timestep)
+        passive_wait(2.5, robot, timestep)
         arm3.setPosition(0)
         arm1.setPosition(-2.949)
         passive_wait(3.5, robot, timestep)
-        arm3.setPosition(2.1)
-        arm1.setPosition(-2.94)
+        arm3.setPosition(-2.1)
+        arm1.setPosition(2.949)
         
         # in case robot runs into stump or wall
         if accelerometer.getValues()[0] < -2:
