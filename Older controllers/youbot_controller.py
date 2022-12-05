@@ -110,19 +110,6 @@ def find_max_score(scores_dict):
     for item in scores_dict:
         if scores_dict[item][0] == max_score:
             return item, max_score
-def filter_image_array(image_array, x_size, y_size):
-    filtered_array = []   # new list of RGB pixels for non-background objects
-    filtered_pos = []     # positions to save x,y information
-    for col_idx in range(x_size):
-        for row_idx in range(y_size):
-            pix_RGB = image_array[col_idx][row_idx]    # a tuple
-            # Now compare againsst known Sky, Mountain and Earth data
-            if(is_pixel_match(pix_RGB, visual_dict["Sky"]) == False):
-                if(is_pixel_match(pix_RGB, visual_dict["Mountain"]) == False):    
-                    if(is_pixel_match(pix_RGB, visual_dict["Earth"]) == False): 
-                        filtered_array.append(pix_RGB)
-                        filtered_pos.append((col_idx, row_idx))  # note order!
-    return filtered_array, filtered_pos
 
 def zombie_lookout(image_array, x_size, y_size, threshold):
     """
@@ -137,7 +124,17 @@ def zombie_lookout(image_array, x_size, y_size, threshold):
         - From average of cluster, determine relative horizontal position
     Return None if no zombie, else return (type, angle(degree) ) tuple 
     """
-    filtered_array, filtered_pos = filter_image_array(image_array, x_size, y_size)
+    filtered_array = []   # new list of RGB pixels for non-background objects
+    filtered_pos = []     # positions to save x,y information
+    for col_idx in range(x_size):
+        for row_idx in range(y_size):
+            pix_RGB = image_array[col_idx][row_idx]    # a tuple
+            # Now compare againsst known Sky, Mountain and Earth data
+            if(is_pixel_match(pix_RGB, visual_dict["Sky"]) == False):
+                if(is_pixel_match(pix_RGB, visual_dict["Mountain"]) == False):    
+                    if(is_pixel_match(pix_RGB, visual_dict["Earth"]) == False): 
+                        filtered_array.append(pix_RGB)
+                        filtered_pos.append((col_idx, row_idx))  # note order!
 
     # Find the color via counting scores
     #print("Debugging filtered length:",len(filtered_array))
@@ -236,7 +233,17 @@ def berry_lookout(image_array, x_size, y_size, threshold):
     """
     #print("Debugging: in berry_lookout mode")
     
-    filtered_array, filtered_pos = filter_image_array(image_array, x_size, y_size)
+    filtered_array = []   # new list of RGB pixels for non-background objects
+    filtered_pos = []     # positions to save x,y information
+    for col_idx in range(x_size):
+        for row_idx in range(y_size):
+            pix_RGB = image_array[col_idx][row_idx]    # a tuple
+            # Now compare againsst known Sky, Mountain and Earth data
+            if(is_pixel_match(pix_RGB, visual_dict["Sky"]) == False):
+                if(is_pixel_match(pix_RGB, visual_dict["Mountain"]) == False):    
+                    if(is_pixel_match(pix_RGB, visual_dict["Earth"]) == False): 
+                        filtered_array.append(pix_RGB)
+                        filtered_pos.append((col_idx, row_idx))  # note order!
 
     # Find the color via counting scores
     #print("Debugging filtered length:",len(filtered_array))
@@ -272,6 +279,7 @@ def berry_lookout(image_array, x_size, y_size, threshold):
         angle = (berry_x - x_size/2)/x_size * 28.5   # angles - estimation from 1 rad FOV!
     # print("Berry type", berry_type, "at", angle, "deg, at", berry_distance, "meters")
     return berry_type, angle, berry_distance
+
 
 def get_berry(front_food, right_food, back_food, left_food, good_berry_list, \
               fr, br, fl, bl):
@@ -558,7 +566,7 @@ def main():
             # highest priority
             edge = avoid_edge_of_world(front_RGB,128, 64, 20, fr, br, fl, bl)    # image array, x_size, y_size, threshold input
             stump = avoid_stump(front_RGB, 128, 64, 3000, fr, br, fl, bl)               
-
+        
         # Compute zombie lookout data types; pick good thresholds               
         if timer %5 == 0:   
             front_lookout = zombie_lookout(front_RGB, 128, 64, 150) # x, y image size from specs
@@ -572,8 +580,7 @@ def main():
                 make_escape(front_lookout, right_lookout, back_lookout, left_lookout, fr, br, fl, bl)
             else:
                 print("No zombie spotted this turn.. I'll look around.")
-                random_walk(random.choice([0,1]), fr, br, fl, bl)
-                
+              
         if emergency > 0:
             emergency -= 1   # clock to run
             if (prev_health - robot_info[0]) >= 1:
@@ -586,8 +593,7 @@ def main():
                 set_wheels(fr, br, fl, bl, -6.5, -6.5, -6.5, -6.5)
             # still need to run edge, stump avoid but with BACK camera
             edge = avoid_edge_of_world(back_RGB,128, 64, 20, fr, br, fl, bl)     
-            stump = avoid_stump(back_RGB, 128, 64, 3000, fr, br, fl, bl)        
-                   
+            stump = avoid_stump(back_RGB, 128, 64, 3000, fr, br, fl, bl)               
             print("Emergency:", emergency)
        
         if timer %20 == 0:
