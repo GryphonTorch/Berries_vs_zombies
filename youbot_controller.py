@@ -567,23 +567,19 @@ def main():
             edge = avoid_edge_of_world(front_RGB,128, 64, 20, fr, br, fl, bl)    # image array, x_size, y_size, threshold input
             stump = avoid_stump(front_RGB, 128, 64, 3000, fr, br, fl, bl)               
         
-            # Compute zombie lookout data types; pick good thresholds
-            # Edge detect  
-           
-             
+        # Compute zombie lookout data types; pick good thresholds               
         if timer %5 == 0:   
             front_lookout = zombie_lookout(front_RGB, 128, 64, 150) # x, y image size from specs
             right_lookout = zombie_lookout(right_RGB, 128, 64, 150)
             back_lookout  = zombie_lookout(back_RGB, 128, 64, 150)
             left_lookout  = zombie_lookout(left_RGB, 128, 64, 150)
                  
-            # Escape from zombie if needed, else find berries 
+            # Escape from zombie if needed
             if front_lookout != None or right_lookout != None or back_lookout != None or left_lookout != None:  
                 print("Zombie spotted! Run...")
                 make_escape(front_lookout, right_lookout, back_lookout, left_lookout, fr, br, fl, bl)
             else:
                 print("No zombie spotted this turn.. I'll look around.")
-                # Compute type and angle of food
               
         if emergency > 0:
             emergency -= 1   # clock to run
@@ -602,7 +598,7 @@ def main():
        
         if timer %20 == 0:
             print("Timer:", timer)
-            # in case we hit wall
+            # in case we hit wall or get stuck
             print("    Reset direction")
             set_wheels(fr, br, fl, bl, -6.5, -6.5, 6.5, 6.5)
        
@@ -616,7 +612,8 @@ def main():
         passive_wait(3.5, robot, timestep)
         arm3.setPosition(2.1)
         arm1.setPosition(-2.94)
-                
+        
+        # in case robot runs into stump or wall
         if accelerometer.getValues()[0] < -2:
             print("You've hit something! Turn!")
             set_wheels(fr, br, fl, bl, -6.5, -6.5, 6.5, 6.5)
