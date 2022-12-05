@@ -105,6 +105,12 @@ def set_wheels(fr, br, fl, bl, fr_speed, br_speed, fl_speed, bl_speed):
     bl.setVelocity(bl_speed)
     return
 
+def find_max_score(scores_dict):
+    max_score = max([scores_dict[score][0] for score in scores_dict])
+    for item in scores_dict:
+        if scores_dict[item][0] == max_score:
+            return item, max_score
+
 def zombie_lookout(image_array, x_size, y_size, threshold):
     """
     Main vision-based zombie alert function
@@ -132,75 +138,39 @@ def zombie_lookout(image_array, x_size, y_size, threshold):
 
     # Find the color via counting scores
     #print("Debugging filtered length:",len(filtered_array))
-    aqua_score = [0,0,0]  # pixel count, Sum of x (col_idx), Sum of y (row_idx)
-    blue_score = [0,0,0]
-    green_score = [0,0,0]
-    purple_score = [0,0,0]
+    zombie_dict = {"Aqua": [0, 0, 0], "Blue": [0, 0, 0], "Green": [0, 0, 0], "Purple": [0, 0, 0]}
+
     #debug_array_x = []    # for debugging to see which pixels are picked up
     #debug_array_y = []
     
     for idx in range(len(filtered_array)):
-        if (is_pixel_match(filtered_array[idx],visual_dict["Aqua_bright"]) or is_pixel_match(filtered_array[idx], visual_dict["Aqua_shadow"])):
-            aqua_score[0] += 1.0  # increment count
-            aqua_score[1] += filtered_pos[idx][0] # col_idx
-            aqua_score[2] += filtered_pos[idx][1] # row_idx
-        if (is_pixel_match(filtered_array[idx],visual_dict["Blue_bright"]) or is_pixel_match(filtered_array[idx], visual_dict["Blue_shadow"])):
-            blue_score[0] += 1.0  # increment count
-            blue_score[1] += filtered_pos[idx][0] # col_idx
-            blue_score[2] += filtered_pos[idx][1] # row_idx
-            
-        if (is_pixel_match(filtered_array[idx],visual_dict["Green_bright"]) or is_pixel_match(filtered_array[idx], visual_dict["Green_shadow"])):
-            green_score[0] += 1.0  # increment count
-            green_score[1] += filtered_pos[idx][0] # col_idx
-            green_score[2] += filtered_pos[idx][1] # row_idx
-            
-        if (is_pixel_match(filtered_array[idx],visual_dict["Purple_bright"]) or is_pixel_match(filtered_array[idx], visual_dict["Purple_shadow"])):
-            purple_score[0] += 1.0  # increment count
-            purple_score[1] += filtered_pos[idx][0] # col_idx
-            purple_score[2] += filtered_pos[idx][1] # row_idx
+        for color in zombie_dict:
+            color_bright = color + "_bright"
+            color_shadow = color + "_shadow"
+            if is_pixel_match(filtered_array[idx],visual_dict[color_bright]) or is_pixel_match(filtered_array[idx], visual_dict[color_shadow]):
+                zombie_dict[color][0] += 1.0
+                zombie_dict[color][1] += filtered_pos[idx][0]
+                zombie_dict[color][2] += filtered_pos[idx][1]
+
             #debug_array_x.append(filtered_pos[idx][0])
             #debug_array_y.append(filtered_pos[idx][1])
 
     # Primary zombie ID complete, analyze results
     # We estimate scaling factors for range and angle to zombie
     #print("\nDebugging A/B/G/P zombie scores:", aqua_score, blue_score, green_score, purple_score, "\n")
-    
-    if aqua_score[0] < threshold and blue_score[0] < threshold and \
-        green_score[0] < threshold and purple_score[0] < threshold:
-        # No zombie nearby; use a threshold instead of 0
+    max_zombie_color, max_zombie_score = find_max_score(zombie_dict)
+    if max_zombie_score < threshold:
         return None
-    
-    elif aqua_score[0] >= blue_score[0] and aqua_score[0] >= green_score[0] and aqua_score[0] >= purple_score[0]:
-        # aqua biggest
-        zombie_type = "aqua"
+    else: 
+        zombie_type = max_zombie_color.lower()
+        zombie_scores = zombie_dict[max_zombie_color]
         #zombie_distance = (1-aqua_score[0]/(x_size*y_size))*5.0 # in meters 
-        zombie_x = aqua_score[1] / aqua_score[0]    # float, x-center of mass
-        angle = (zombie_x - x_size/2)/x_size * 28.5   # angles - estimation from 1 rad FOV!
-       
-    elif blue_score[0] >= green_score[0] and blue_score[0] >= purple_score[0]:
-        # check if blue biggest
-        zombie_type = "blue"
-        #zombie_distance = (1-blue_score[0]/(x_size*y_size))*5.0 # in meters 
-        zombie_x = blue_score[1] / blue_score[0]    # float, x-center of mass
-        angle = (zombie_x - x_size/2)/x_size * 28.5   # angles - estimation from 1 rad FOV!
-        
-    elif green_score[0] >= purple_score[0]:
-        # check if green biggest
-        zombie_type = "green"
-        #zombie_distance = (1-green_score[0]/(x_size*y_size))*5.0 # in meters 
-        zombie_x = green_score[1] / green_score[0]  # float, x-center of mass
-        angle = (zombie_x - x_size/2)/x_size * 28.5   # angles - estimation from 1 rad FOV!
-    
-    else:
-        # so purple is biggest
-        zombie_type = "purple"
-        #zombie_distance = (1-purple_score[0]/(x_size*y_size))*5.0 # in meters 
-        zombie_x = purple_score[1] / purple_score[0] # float, x-center of mass
-        angle = (zombie_x - x_size/2)/x_size * 28.5    # angles - estimation from 1 rad FOV!
-       
+        zombie_x = zombie_scores[1] / zombie_scores[0] # float, x-center of mass
+        angle = (zombie_x - x_size/2)/x_size * 28.5   # angles - estimation from 1 rad FOV!       
     #plt.plot(debug_array_x,debug_array_y, ".")   # for debugging
     #plt.show()    
     #print("Zombie type", zombie_type, "at", angle, "deg boresight.")
+    print("zombie condensed")
     return zombie_type, angle
 
 
@@ -251,12 +221,6 @@ def random_walk(choice, fr, br, fl, bl):
     elif choice == 1:
         set_wheels(fr, br, fl, bl, 6.5, 6.5, 4.5, 4.5)
         return    # to swerve right
-
-def find_max_score(scores_dict):
-    max_score = max([scores_dict[score][0] for score in scores_dict])
-    for berry in scores_dict:
-        if scores_dict[berry][0] == max_score:
-            return berry, max_score
     
 def berry_lookout(image_array, x_size, y_size, threshold):
     """
@@ -283,40 +247,36 @@ def berry_lookout(image_array, x_size, y_size, threshold):
 
     # Find the color via counting scores
     #print("Debugging filtered length:",len(filtered_array))
-    color_dict = {"Red": [0, 0, 0], "Pink": [0, 0, 0], "Orange": [0, 0, 0], "Yellow": [0, 0, 0]}
-    stump_score = 0
+    berry_dict = {"Red": [0, 0, 0], "Pink": [0, 0, 0], "Orange": [0, 0, 0], "Yellow": [0, 0, 0]}
     #debug_array_x = []    # for debugging to see which pixels are picked up
     #debug_array_y = []
 
     for idx in range(len(filtered_array)):
-        for color in color_dict:
+        for color in berry_dict:
             color_bright = color + "_bright"
             color_shadow = color + "_shadow"
             if is_pixel_match(filtered_array[idx],visual_dict[color_bright]) or is_pixel_match(filtered_array[idx], visual_dict[color_shadow]):
-                color_dict[color][0] += 1.0
-                color_dict[color][1] += filtered_pos[idx][0]
-                color_dict[color][2] += filtered_pos[idx][1]
+                berry_dict[color][0] += 1.0
+                berry_dict[color][1] += filtered_pos[idx][0]
+                berry_dict[color][2] += filtered_pos[idx][1]
             #debug_array_x.append(filtered_pos[idx][0])
             #debug_array_y.append(filtered_pos[idx][1])
-        if is_pixel_match(filtered_array[idx],visual_dict["Stump_bright"]) or is_pixel_match(filtered_array[idx], visual_dict["Stump_shadow"]):
-            stump_score += 1.0
 
     # Primary berry color ID complete, analyze results
     # We estimate scaling factors for range and angle to zombie
     #print("\nDebugging R/P/O/Y berry scores:", red_score, pink_score, orange_score, yellow_score, "\n")
     
-    max_berry_color, max_berry_score = find_max_score(color_dict)
+    max_berry_color, max_berry_score = find_max_score(berry_dict)
     if max_berry_score < threshold:
         berry_type = None     # default type
         berry_distance = 1000
         angle = 0
     else: 
         berry_type = max_berry_color.lower()
-        score_array = color_dict[max_berry_color]
+        score_array = berry_dict[max_berry_color]
         berry_x = score_array[1] / score_array[0]    # float, x-center of mass
         berry_distance = (1-score_array[0]/(x_size*y_size))*5.0 # in meters
         angle = (berry_x - x_size/2)/x_size * 28.5   # angles - estimation from 1 rad FOV!
-    print(stump_score)
     # print("Berry type", berry_type, "at", angle, "deg, at", berry_distance, "meters")
     return berry_type, angle, berry_distance
 
@@ -389,9 +349,7 @@ def avoid_stump(image_array, x_size, y_size, threshold, fr, br, fl, bl):
             stump_score += 1.0   
     if stump_score > threshold: 
         print("Warning: stump detected, stump pixels", stump_score)
-        set_wheels(fr, br, fl, bl, -1, -1, 6.5, 6.5)
-    print("test hello")
-    print(stump_score)
+        # set_wheels(fr, br, fl, bl, -1, -1, 6.5, 6.5)
     #else: 
         #print("Stump not close enough, stump pixels", stump_score)
         # don't change wheel type
@@ -607,7 +565,7 @@ def main():
             
             # highest priority
             edge = avoid_edge_of_world(front_RGB,128, 64, 20, fr, br, fl, bl)    # image array, x_size, y_size, threshold input
-            stump = avoid_stump(front_RGB, 128, 64, 5000, fr, br, fl, bl)               
+            stump = avoid_stump(front_RGB, 128, 64, 3000, fr, br, fl, bl)               
         
             # Compute zombie lookout data types; pick good thresholds
             # Edge detect  
@@ -632,7 +590,7 @@ def main():
             set_wheels(fr, br, fl, bl, -6.5, -6.5, -6.5, -6.5)
             # still need to run edge, stump avoid but with BACK camera
             edge = avoid_edge_of_world(back_RGB,128, 64, 20, fr, br, fl, bl)     
-            stump = avoid_stump(back_RGB, 128, 64, 5000, fr, br, fl, bl)               
+            stump = avoid_stump(back_RGB, 128, 64, 3000, fr, br, fl, bl)               
             print("Emergency:", emergency)
        
         if timer%20 == 0:
