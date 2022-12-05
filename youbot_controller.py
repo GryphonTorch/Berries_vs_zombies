@@ -348,7 +348,7 @@ def avoid_stump(image_array, x_size, y_size, threshold, fr, br, fl, bl):
             stump_score += 1.0   
     if stump_score > threshold: 
         print("Warning: stump detected, stump pixels", stump_score)
-        # set_wheels(fr, br, fl, bl, -1, -1, 6.5, 6.5)
+        set_wheels(fr, br, fl, bl, -1, -1, 6.5, 6.5)
     #else: 
         #print("Stump not close enough, stump pixels", stump_score)
         # don't change wheel type
